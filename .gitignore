@@ -1,0 +1,41 @@
+node_modules
+lib
+dist
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+**/coverage
+.DS_Store
+**/.DS_Store
+packages/**/.*.txt
+
+# Secrets & Local Environment
+.env
+.env.*
+!.env.example
+!.env.dist
+
+# Databases
+*.sqlite
+*.sqlite3
+
+# Compiled files
+*.map
+*.d.ts
+*.js
+!bin/**/*.js
+!**/bin/**/*.js
+!/*.js
+*.tsbuildinfo
+
+# Generated App
+/app/
+
+.turbo/
+**/.turbo/
+firestore-debug.log
+firebase-debug.log
