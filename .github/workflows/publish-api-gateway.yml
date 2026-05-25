@@ -29,27 +29,10 @@ jobs:
         run: echo "VERSION=$(jq -r .version containers/api-gateway/package.json)" >> $GITHUB_ENV
 
       - name: Prepare package.json for NPM registry (Immutable versions)
-        run: |
-          node -e '
-            const fs = require("fs");
-            const { execSync } = require("child_process");
-            const targetPkgPath = "containers/api-gateway/package.json";
-            const targetPkg = JSON.parse(fs.readFileSync(targetPkgPath, "utf8"));
-            
-            for (const dep in targetPkg.dependencies) {
-              if (targetPkg.dependencies[dep] === "workspace:*" || (dep.startsWith("@quatrain/") && targetPkg.dependencies[dep] === "*")) {
-                try {
-                  const latestVersion = execSync(`npm view ${dep} version`, { encoding: "utf8" }).trim();
-                  targetPkg.dependencies[dep] = latestVersion;
-                  console.log(`Resolved ${dep} to published NPM version ${latestVersion}`);
-                } catch (e) {
-                  console.error(`Failed to fetch version for ${dep} from NPM. Falling back to *`);
-                  targetPkg.dependencies[dep] = "*";
-                }
-              }
-            }
-            fs.writeFileSync(targetPkgPath, JSON.stringify(targetPkg, null, 2));
-          '
+        uses: Quatrain/actions/prepare-package-json@v1
+        with:
+          package_json_path: 'containers/api-gateway/package.json'
+          dependency_prefix: '@quatrain/'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -83,13 +66,11 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-      - name: Bump package version
-        run: |
-          git checkout containers/api-gateway/package.json
-          npm --no-git-tag-version --prefix containers/api-gateway version patch
+      - name: Restore package.json to original (with placeholders)
+        run: git checkout containers/api-gateway/package.json
 
-      - name: Commit version bump
-        uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
+      - name: Bump package version and push tag
+        uses: Quatrain/actions/push-tag@v1
         with:
-          commit_message: "chore(api-gateway): bump patch version [skip ci]"
-          file_pattern: "containers/api-gateway/package.json"
+          bump_type: 'patch'
+        working-directory: containers/api-gateway

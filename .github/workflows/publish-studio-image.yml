@@ -35,27 +35,10 @@ jobs:
         run: echo "VERSION=$(jq -r .version containers/studio-image/package.json)" >> $GITHUB_ENV
 
       - name: Prepare package.json for NPM registry (Immutable versions)
-        run: |
-          node -e '
-            const fs = require("fs");
-            const { execSync } = require("child_process");
-            const targetPkgPath = "containers/studio-image/package.json";
-            const targetPkg = JSON.parse(fs.readFileSync(targetPkgPath, "utf8"));
-            
-            for (const dep in targetPkg.dependencies) {
-              if (targetPkg.dependencies[dep] === "workspace:*" || (dep.startsWith("@quatrain/") && targetPkg.dependencies[dep] === "*")) {
-                try {
-                  const latestVersion = execSync(`npm view ${dep} version`, { encoding: "utf8" }).trim();
-                  targetPkg.dependencies[dep] = latestVersion;
-                  console.log(`Resolved ${dep} to published NPM version ${latestVersion}`);
-                } catch (e) {
-                  console.error(`Failed to fetch version for ${dep} from NPM. Falling back to *`);
-                  targetPkg.dependencies[dep] = "*";
-                }
-              }
-            }
-            fs.writeFileSync(targetPkgPath, JSON.stringify(targetPkg, null, 2));
-          '
+        uses: Quatrain/actions/prepare-package-json@v1
+        with:
+          package_json_path: 'containers/studio-image/package.json'
+          dependency_prefix: '@quatrain/'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -98,12 +81,8 @@ jobs:
           git config pull.rebase true
           git pull origin main
 
-      - name: Bump package version
-        run: |
-          npm --no-git-tag-version --prefix containers/studio-image version patch
-
-      - name: Commit version bump
-        uses: stefanzweifel/git-auto-commit-action@v5 # NOSONAR
+      - name: Bump package version and push tag
+        uses: Quatrain/actions/push-tag@v1
         with:
-          commit_message: "chore(studio-image): bump patch version [skip ci]"
-          file_pattern: "containers/studio-image/package.json"
+          bump_type: 'patch'
+        working-directory: containers/studio-image
