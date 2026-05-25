@@ -58,7 +58,7 @@ FROM oven/bun:alpine
 WORKDIR /app
 
 # OCI standard labels
-LABEL org.opencontainers.image.title="Quatrain Service Name"
+LABEL org.opencontainers.image.title="Core Service Name"
 LABEL org.opencontainers.image.description="Short, concise summary of this container's responsibility"
 LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
@@ -70,7 +70,7 @@ LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain
 
 | Label Metadata Key | Purpose & Recommendation | Example |
 |--------------------|--------------------------|---------|
-| `org.opencontainers.image.title` | The human-readable name of the application. | `"Quatrain API Gateway"` |
+| `org.opencontainers.image.title` | The human-readable name of the application. | `"Core API Gateway"` |
 | `org.opencontainers.image.description` | One-sentence summary of the container's purpose. | `"API Gateway and Cache Proxy"` |
 | `org.opencontainers.image.source` | URL to the repository containing the build files. | `"https://github.com/Quatrain/CoreApps"` |
 | `org.opencontainers.image.licenses` | Standard SPID identifier for the license. | `"AGPL-3.0"` |

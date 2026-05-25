@@ -1,6 +1,6 @@
-# Quatrain Applications & Deployments (CoreApps)
+# Core Applications & Deployments (CoreApps)
 
-This monorepo houses all visual dashboard environments, local modeling APIs, API routing proxies, and containerized deployments built on top of the Quatrain Core framework.
+This monorepo houses all visual dashboard environments, local modeling APIs, API routing proxies, and containerized deployments built on top of the Core framework (by Quatrain).
 
 ---
 
