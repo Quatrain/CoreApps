@@ -11,6 +11,10 @@
   "engines": {
     "node": ">=22.0.0"
   },
+  "scripts": {
+    "build": "yarn workspaces foreach -v run build",
+    "dev": "yarn workspaces foreach -p -j parallel run dev"
+  },
   "resolutions": {
     "@quatrain/ai-gemini": "portal:../Core/packages/ai-gemini",
     "@quatrain/ai": "portal:../Core/packages/ai",
