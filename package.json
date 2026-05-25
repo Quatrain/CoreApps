@@ -12,8 +12,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "yarn workspaces foreach -v run build",
-    "dev": "yarn workspaces foreach -p -j parallel run dev"
+    "build": "yarn workspaces foreach -A -v run build",
+    "dev": "yarn workspaces foreach -A -p -j parallel run dev"
   },
   "resolutions": {
     "@quatrain/ai-gemini": "portal:../Core/packages/ai-gemini",
@@ -65,11 +65,11 @@
     "@quatrain/studio": "portal:../Core/packages/studio",
     "@quatrain/testing": "portal:../Core/packages/testing",
     "@quatrain/types": "portal:../Core/packages/types",
-    "@quatrain/ui-form-react": "portal:../Core/packages/ui-form-react",
-    "@quatrain/ui-form": "portal:../Core/packages/ui-form",
-    "@quatrain/ui-list-react": "portal:../Core/packages/ui-list-react",
-    "@quatrain/ui-list": "portal:../Core/packages/ui-list",
-    "@quatrain/ui": "portal:../Core/packages/ui",
+    "@quatrain/ui-form-react": "portal:../CoreUI/packages/ui-form-react",
+    "@quatrain/ui-form": "portal:../CoreUI/packages/ui-form",
+    "@quatrain/ui-list-react": "portal:../CoreUI/packages/ui-list-react",
+    "@quatrain/ui-list": "portal:../CoreUI/packages/ui-list",
+    "@quatrain/ui": "portal:../CoreUI/packages/ui",
     "@quatrain/worker": "portal:../Core/packages/worker"
   }
 }

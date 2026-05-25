@@ -13,7 +13,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@quatrain/*": ["../../packages/*/src/index.ts", "../../packages/*/src"]
+      "@quatrain/*": [
+         "../../../Core/packages/*/src/index.ts",
+         "../../../CoreUI/packages/*/src/index.ts"
+      ]
     },
     "noEmit": true,
     "jsx": "react-jsx",

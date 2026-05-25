@@ -18,9 +18,12 @@
       "removeComments": true,
       "baseUrl": ".",
       "paths": {
-         "@quatrain/*": ["packages/*/src/index.ts", "apps/*/src/index.ts"]
+         "@quatrain/*": [
+            "../Core/packages/*/src/index.ts",
+            "../CoreUI/packages/*/src/index.ts",
+            "apps/*/src/index.ts"
+         ]
       }
    },
-    "include": ["packages/ui-list/src/index.ts"],
-    "exclude": ["node_modules", "**/dist", "**/lib"]
+   "exclude": ["node_modules", "**/dist", "**/lib"]
 }
