@@ -35,7 +35,7 @@ jobs:
         run: echo "VERSION=$(jq -r .version containers/studio-image/package.json)" >> $GITHUB_ENV
 
       - name: Prepare package.json for NPM registry (Immutable versions)
-        uses: Quatrain/actions/prepare-package-json@v1.0.0
+        uses: Quatrain/actions/prepare-package-json@v1
         with:
           package_json_path: 'containers/studio-image/package.json'
           dependency_prefix: '@quatrain/'
@@ -82,7 +82,7 @@ jobs:
           git pull origin main
 
       - name: Bump package version and push tag
-        uses: Quatrain/actions/push-tag@v1.0.0
+        uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'
           working_directory: 'containers/studio-image'
