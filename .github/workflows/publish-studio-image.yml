@@ -85,4 +85,4 @@ jobs:
         uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'
-        working-directory: containers/studio-image
+          working_directory: 'containers/studio-image'

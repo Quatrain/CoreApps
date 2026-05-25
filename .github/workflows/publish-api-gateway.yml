@@ -73,4 +73,4 @@ jobs:
         uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'
-        working-directory: containers/api-gateway
+          working_directory: 'containers/api-gateway'
