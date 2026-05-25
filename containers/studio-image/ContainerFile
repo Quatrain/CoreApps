@@ -14,6 +14,13 @@ RUN bun build src/index.ts --outdir dist --target bun --external '*'
 FROM oven/bun:alpine
 
 WORKDIR /app
+
+LABEL org.opencontainers.image.title="Quatrain Studio"
+LABEL org.opencontainers.image.description="Bundled developer environment for visual data modeling and dashboard generation"
+LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
+LABEL org.opencontainers.image.vendor="Quatrain Technologies"
+LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
