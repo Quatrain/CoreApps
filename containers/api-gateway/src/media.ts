@@ -89,7 +89,9 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
       if (cl) size = Number.parseInt(cl, 10)
       
       const ct = headRes.headers.get('content-type')
-      if (ct) mimeType = ct
+      if (ct && ct !== 'text/plain' && ct !== 'application/octet-stream') {
+        mimeType = ct
+      }
     } catch (err) {
       Api.debug(`[MediaProxy] Failed to HEAD storage URL for exact size:`, err)
     }
