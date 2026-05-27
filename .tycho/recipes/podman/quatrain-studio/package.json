@@ -1,0 +1,11 @@
+{
+  "name": "quatrain-studio",
+  "description": "Visual data modeling and interactive developer dashboard for Quatrain applications",
+  "requiredEnv": [
+    "STUDIO_SUBDOMAIN",
+    "STUDIO_DATA_LOCATION",
+    "STUDIO_STORAGE_LOCATION",
+    "STUDIO_AUTH_USER",
+    "STUDIO_AUTH_PASS"
+  ]
+}

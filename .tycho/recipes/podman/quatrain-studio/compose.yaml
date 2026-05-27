@@ -1,0 +1,20 @@
+services:
+  studio:
+    image: ghcr.io/quatrain/studio-image:latest
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.studio.rule=Host(`${STUDIO_SUBDOMAIN:-studio}.${DOMAIN_NAME}`)
+      - traefik.http.routers.studio.tls=true
+      - traefik.http.routers.studio.entrypoints=websecure
+      - traefik.http.routers.studio.tls.certresolver=${TRAEFIK_RESOLVER:-myresolver}
+      - traefik.http.services.studio.loadbalancer.server.port=4000
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - SERVE_FRONTEND=true
+      - STUDIO_AUTH_USER=${STUDIO_AUTH_USER:-admin}
+      - STUDIO_AUTH_PASS=${STUDIO_AUTH_PASS:-ChangeMe123!}
+    volumes:
+      - ${STUDIO_DATA_LOCATION:-/data/studio/data}:/app/data:z
+      - ${STUDIO_STORAGE_LOCATION:-/data/studio/storage}:/app/storage:z
