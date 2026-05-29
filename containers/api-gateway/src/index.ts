@@ -22,7 +22,7 @@ Bun.serve({
 
     // 1. Media Routing
     // e.g. /blob/medias/123/file or /api/blob/videos/123/thumbnail
-    if (path.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail)$/)) {
+    if (path.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail\d*)$/)) {
       return handleMediaRequest(req, url)
     }
 

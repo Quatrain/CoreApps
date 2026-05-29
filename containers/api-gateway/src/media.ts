@@ -23,7 +23,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const finalAuthHeader = authHeader || (tokenQuery ? `Bearer ${tokenQuery}` : '')
   
   // Extract UID and action from the path. Assuming: /blob/medias/:uid/file or /api/blob/...
-  const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail)$/)
+  const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail\d*)$/)
   if (!match) {
     return new Response('Invalid media path', { status: 400 })
   }
