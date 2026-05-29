@@ -63,6 +63,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   if (!authRes.ok) {
     // Return the upstream's error (e.g. 403 Forbidden)
+    Api.warn(`[MediaProxy] Upstream authorization failed for media ${uid} (action: ${action}) with status ${authRes.status}`)
     return new Response(authRes.body, { status: authRes.status, headers: authRes.headers })
   }
 
@@ -76,6 +77,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   let size = mediaInfo.size || 0
 
   if (!storageUrl) {
+    Api.warn(`[MediaProxy] Upstream returned successfully but provided no storage URL for media ${uid} (action: ${action})`)
     return new Response('No media URL provided by API', { status: 404 })
   }
 
@@ -151,6 +153,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     // on a bucket configured without `s3:ListBucket` permissions.
     // Since upstream validation already passed, a 403 here strictly means the file is missing.
     const status = storageRes.status === 403 ? 404 : storageRes.status
+    Api.warn(`[MediaProxy] Storage download failed for media ${uid} (action: ${action}). Provider returned status: ${storageRes.status} (resolved as ${status})`)
     return new Response('Storage Error or Not Found', { status })
   }
 
