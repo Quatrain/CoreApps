@@ -872,7 +872,7 @@ __metadata:
   dependencies:
     "@google/genai": "npm:latest"
     "@quatrain/ai": "npm:^1.1.3"
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
   languageName: node
   linkType: soft
 
@@ -880,7 +880,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/ai@portal:../Core/packages/ai::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
   languageName: node
   linkType: soft
 
@@ -977,8 +977,8 @@ __metadata:
   resolution: "@quatrain/auth@portal:../Core/packages/auth::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/api": "workspace:*"
-    "@quatrain/backend": "npm:^1.2.12"
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/backend": "npm:^1.2.13"
+    "@quatrain/core": "npm:^1.2.16"
   languageName: node
   linkType: soft
 
@@ -996,7 +996,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/backend-sqlite@portal:../Core/packages/backend-sqlite::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/backend": "npm:^1.2.12"
+    "@quatrain/backend": "npm:^1.2.13"
     "@quatrain/core": "workspace:*"
     sqlite: "npm:^5.1.1"
     sqlite3: "npm:^5.1.7"
@@ -1018,7 +1018,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/code@portal:../Core/packages/code::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
   languageName: node
   linkType: soft
 
@@ -1068,7 +1068,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/messaging@portal:../Core/packages/messaging::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
     mustache: "npm:^4.2.0"
   languageName: node
   linkType: soft
@@ -1077,7 +1077,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@portal:../Core/packages/queue::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
     fs-extra: "npm:^11.2.0"
   languageName: node
   linkType: soft
@@ -1095,7 +1095,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@portal:../Core/packages/storage::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.15"
+    "@quatrain/core": "npm:^1.2.16"
     fs-extra: "npm:^11.2.0"
     object-hash: "npm:^3.0.0"
     sharp: "npm:^0.33.5"
@@ -1170,9 +1170,9 @@ __metadata:
     "@quatrain/i18n-en": "npm:*"
     "@quatrain/i18n-fr": "npm:*"
     "@quatrain/studio": "npm:*"
-    "@quatrain/ui": "npm:*"
-    "@quatrain/ui-form-react": "npm:*"
-    "@quatrain/ui-list-react": "npm:*"
+    "@quatrain/ux": "npm:*"
+    "@quatrain/ux-form-react": "npm:*"
+    "@quatrain/ux-list-react": "npm:*"
     "@tabler/icons-react": "npm:^3.2.0"
     "@types/node": "npm:^22.10.1"
     "@types/react": "npm:^18.3.3"
@@ -1203,14 +1203,14 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@quatrain/ui-form-react@portal:../CoreUI/packages/ui-form-react::locator=core-apps-monorepo%40workspace%3A.":
+"@quatrain/ux-form-react@portal:../CoreUX/packages/ux-form-react::locator=core-apps-monorepo%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@quatrain/ui-form-react@portal:../CoreUI/packages/ui-form-react::locator=core-apps-monorepo%40workspace%3A."
+  resolution: "@quatrain/ux-form-react@portal:../CoreUX/packages/ux-form-react::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@mantine/core": "npm:^7.11.1"
     "@mantine/hooks": "npm:^7.11.1"
     "@quatrain/core": "npm:*"
-    "@quatrain/ui": "workspace:*"
+    "@quatrain/ux": "workspace:*"
     "@tabler/icons-react": "npm:^3.10.0"
   peerDependencies:
     react: ^18.3.1
@@ -1218,32 +1218,32 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@quatrain/ui-list-react@portal:../CoreUI/packages/ui-list-react::locator=core-apps-monorepo%40workspace%3A.":
+"@quatrain/ux-list-react@portal:../CoreUX/packages/ux-list-react::locator=core-apps-monorepo%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@quatrain/ui-list-react@portal:../CoreUI/packages/ui-list-react::locator=core-apps-monorepo%40workspace%3A."
+  resolution: "@quatrain/ux-list-react@portal:../CoreUX/packages/ux-list-react::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@mantine/core": "npm:^7.11.1"
     "@mantine/hooks": "npm:^7.11.1"
     "@quatrain/i18n": "npm:*"
     "@quatrain/i18n-en": "npm:*"
     "@quatrain/i18n-fr": "npm:*"
-    "@quatrain/ui": "workspace:*"
-    "@quatrain/ui-list": "workspace:*"
+    "@quatrain/ux": "workspace:*"
+    "@quatrain/ux-list": "workspace:*"
   peerDependencies:
     react: ^18.3.1
     react-dom: ^18.3.1
   languageName: node
   linkType: soft
 
-"@quatrain/ui-list@portal:../CoreUI/packages/ui-list::locator=core-apps-monorepo%40workspace%3A.":
+"@quatrain/ux-list@portal:../CoreUX/packages/ux-list::locator=core-apps-monorepo%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@quatrain/ui-list@portal:../CoreUI/packages/ui-list::locator=core-apps-monorepo%40workspace%3A."
+  resolution: "@quatrain/ux-list@portal:../CoreUX/packages/ux-list::locator=core-apps-monorepo%40workspace%3A."
   languageName: node
   linkType: soft
 
-"@quatrain/ui@portal:../CoreUI/packages/ui::locator=core-apps-monorepo%40workspace%3A.":
+"@quatrain/ux@portal:../CoreUX/packages/ux::locator=core-apps-monorepo%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@quatrain/ui@portal:../CoreUI/packages/ui::locator=core-apps-monorepo%40workspace%3A."
+  resolution: "@quatrain/ux@portal:../CoreUX/packages/ux::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@mantine/core": "npm:^7.15.0"
     "@mantine/hooks": "npm:^7.15.0"

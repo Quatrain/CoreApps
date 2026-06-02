@@ -25,9 +25,9 @@
   "devDependencies": {
     "@quatrain/api-client": "*",
     "@quatrain/studio": "*",
-    "@quatrain/ui": "*",
-    "@quatrain/ui-form-react": "*",
-    "@quatrain/ui-list-react": "*",
+    "@quatrain/ux": "*",
+    "@quatrain/ux-form-react": "*",
+    "@quatrain/ux-list-react": "*",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

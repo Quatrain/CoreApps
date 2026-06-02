@@ -1,4 +1,4 @@
-import { CoreForm } from '@quatrain/ui-form-react'
+import { CoreForm } from '@quatrain/ux-form-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api'
 

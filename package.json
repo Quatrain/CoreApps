@@ -65,11 +65,11 @@
     "@quatrain/studio": "portal:../Core/packages/studio",
     "@quatrain/testing": "portal:../Core/packages/testing",
     "@quatrain/types": "portal:../Core/packages/types",
-    "@quatrain/ui-form-react": "portal:../CoreUI/packages/ui-form-react",
-    "@quatrain/ui-form": "portal:../CoreUI/packages/ui-form",
-    "@quatrain/ui-list-react": "portal:../CoreUI/packages/ui-list-react",
-    "@quatrain/ui-list": "portal:../CoreUI/packages/ui-list",
-    "@quatrain/ui": "portal:../CoreUI/packages/ui",
+    "@quatrain/ux-form-react": "portal:../CoreUX/packages/ux-form-react",
+    "@quatrain/ux-form": "portal:../CoreUX/packages/ux-form",
+    "@quatrain/ux-list-react": "portal:../CoreUX/packages/ux-list-react",
+    "@quatrain/ux-list": "portal:../CoreUX/packages/ux-list",
+    "@quatrain/ux": "portal:../CoreUX/packages/ux",
     "@quatrain/worker": "portal:../Core/packages/worker"
   }
 }

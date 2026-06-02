@@ -9,7 +9,7 @@ This document outlines the visual application design patterns, state management 
 When building visual applications (like `@quatrain/studio-web` and `examples/bookstore`) on top of Quatrain packages:
 
 ### A. MVC Separation & Headless Controllers
-Keep visual components pure and simple. Business states and data validation MUST live in headless, framework-agnostic controllers (from `@quatrain/ui-form` or `@quatrain/ui-list`) rather than inside React component local states.
+Keep visual components pure and simple. Business states and data validation MUST live in headless, framework-agnostic controllers (from `@quatrain/ux-form` or `@quatrain/ux-list`) rather than inside React component local states.
 
 - ❌ **DO NOT mix heavy modeling and filtering logic directly inside React components:**
   ```tsx
@@ -23,7 +23,7 @@ Keep visual components pure and simple. Business states and data validation MUST
 - ✅ **DO delegate to the pre-packaged headless controllers:**
   ```tsx
   // ✅ GOOD:
-  import { ListController } from '@quatrain/ui-list'
+  import { ListController } from '@quatrain/ux-list'
   
   const controller = new ListController({ collection: 'projects' })
   // React components simply subscribe and render the controller state

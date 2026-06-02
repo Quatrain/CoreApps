@@ -40,9 +40,9 @@ export default defineConfig({
        { find: '@quatrain/api-client', replacement: path.resolve(__dirname, '../../../Core/packages/api-client/src/index.ts') },
        { find: '@quatrain/backend', replacement: path.resolve(__dirname, '../../../Core/packages/backend/src/index.ts') },
        { find: '@quatrain/studio', replacement: path.resolve(__dirname, '../../../Core/packages/studio/src/index.ts') },
-       { find: '@quatrain/ui', replacement: path.resolve(__dirname, '../../../CoreUI/packages/ui/src/index.ts') },
-       { find: '@quatrain/ui-form-react', replacement: path.resolve(__dirname, '../../../CoreUI/packages/ui-form-react/src/index.ts') },
-       { find: '@quatrain/ui-list-react', replacement: path.resolve(__dirname, '../../../CoreUI/packages/ui-list-react/src/index.ts') },
+       { find: '@quatrain/ux', replacement: path.resolve(__dirname, '../../../CoreUX/packages/ux/src/index.ts') },
+       { find: '@quatrain/ux-form-react', replacement: path.resolve(__dirname, '../../../CoreUX/packages/ux-form-react/src/index.ts') },
+       { find: '@quatrain/ux-list-react', replacement: path.resolve(__dirname, '../../../CoreUX/packages/ux-list-react/src/index.ts') },
        { find: '@quatrain/i18n', replacement: path.resolve(__dirname, '../../../Core/packages/i18n/src/index.ts') },
        { find: '@quatrain/i18n-en', replacement: path.resolve(__dirname, '../../../Core/packages/i18n-en/src/index.ts') },
        { find: '@quatrain/i18n-fr', replacement: path.resolve(__dirname, '../../../Core/packages/i18n-fr/src/index.ts') }

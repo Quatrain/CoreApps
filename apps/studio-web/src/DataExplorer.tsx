@@ -1,5 +1,5 @@
 import { Card, Button, Group } from '@mantine/core'
-import { CoreList } from '@quatrain/ui-list-react'
+import { CoreList } from '@quatrain/ux-list-react'
 import { ManagerHeader } from './components/ManagerUI'
 import { apiClient } from './api'
 import { useI18n } from './i18nContext'
@@ -25,8 +25,8 @@ export interface DataExplorerProps {
 
 /**
  * DataExplorer component provides a dynamic database data table and query interface
- * for any deployed model. It leverages the headless @quatrain/ui-list core engine and
- * Mantine-styled @quatrain/ui-list-react tables.
+ * for any deployed model. It leverages the headless @quatrain/ux-list core engine and
+ * Mantine-styled @quatrain/ux-list-react tables.
  * 
  * @param props - DataExplorerProps configurations.
  * @returns React functional component rendering the dynamic table explorer.

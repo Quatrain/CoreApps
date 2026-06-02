@@ -20,7 +20,7 @@
       "paths": {
          "@quatrain/*": [
             "../Core/packages/*/src/index.ts",
-            "../CoreUI/packages/*/src/index.ts",
+            "../CoreUX/packages/*/src/index.ts",
             "apps/*/src/index.ts"
          ]
       }
