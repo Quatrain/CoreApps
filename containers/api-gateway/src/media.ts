@@ -102,7 +102,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   // 1.5. Check Excluded Mimes and Size
   const sizeMB = (size / (1024 * 1024)).toFixed(2)
   
-  if (GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
+  if (mimeType !== 'application/pdf' && GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
     Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Excluded MIME (${mimeType}) | Size: ${sizeMB} MB`)
     return Response.redirect(storageUrl, 302)
   }
