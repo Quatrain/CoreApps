@@ -31,6 +31,9 @@ COPY --chown=bun:bun package.json ./
 # Create data and storage directories and assign ownership to bun
 RUN mkdir -p /app/data /app/storage && chown -R bun:bun /app/data /app/storage
 
+# Create a symlink for studio-web to support serveStatic in older api versions
+RUN ln -s /app/node_modules/@quatrain/studio-web /studio-web
+
 # Run as non-root user
 USER bun
 
