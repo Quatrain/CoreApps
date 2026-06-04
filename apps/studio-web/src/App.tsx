@@ -60,6 +60,7 @@ function AppContent() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const [models, setModels] = useState<any[]>([])
   const [backends, setBackends] = useState<any[]>([])
+  const [project, setProject] = useState<any>(null)
   const [projectLanguages, setProjectLanguages] = useState<string[]>(['en', 'fr'])
   const [projectDefaultLanguage, setProjectDefaultLanguage] = useState<string>('en')
   const [isAppSetup, setIsAppSetup] = useState<boolean>(true)
@@ -200,6 +201,7 @@ function AppContent() {
         let setup = false
         if (projs && projs.length > 0) {
            const p = projs[0]
+           setProject(p)
            setProjectLanguages(p.languages || ['en', 'fr'])
            setProjectDefaultLanguage(p.defaultLanguage || 'en')
            setup = true
@@ -256,7 +258,7 @@ function AppContent() {
 
   const handleCreateModel = async (name: string, collection: string) => {
     try {
-      const newModel = await api.createModel(name, collection)
+      const newModel = await api.createModel(name, collection, project?.uid)
       
       // Auto-create standard 'name' property
       const defaultProp = await api.addProperty(newModel.uid, {

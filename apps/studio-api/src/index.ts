@@ -11,13 +11,19 @@ import { MigrationManager } from '@quatrain/backend-migrations'
 import { AppInfra } from '@quatrain/app'
 import { HistoryMiddleware } from './middlewares/HistoryMiddleware'
 import { AuthBasic } from '@quatrain/auth-basic'
+import { seedContainer } from './scripts/seed-container'
 
-export { seedContainer } from './scripts/seed-container'
+export { seedContainer }
 
 const dataDir = process.env.STUDIO_DATA_DIR || path.resolve(process.cwd(), 'data')
 const sqlitePath = path.join(dataDir, 'quatrain-studio.sqlite')
 export async function startStudioApi() {
    try {
+      // Ensure the data directory exists before initializing SQLite adapter
+      if (!fs.existsSync(dataDir)) {
+         fs.mkdirSync(dataDir, { recursive: true })
+      }
+
       const adapter = new SQLiteAdapter({ 
          config: { database: sqlitePath },
          middlewares: [new InjectMetaMiddleware(), new HistoryMiddleware()],
@@ -57,19 +63,64 @@ export async function startStudioApi() {
          }
       } else {
          // Fallback to basic auth using STUDIO_AUTH_USER and STUDIO_AUTH_PASS
-         const basicAuth = AuthBasic.factory(process.env.STUDIO_AUTH_USER, process.env.STUDIO_AUTH_PASS)
+         const user = process.env.STUDIO_AUTH_USER || 'admin'
+         const pass = process.env.STUDIO_AUTH_PASS || 'ChangeMe123!'
+         const basicAuth = AuthBasic.factory(user, pass)
          if (basicAuth && server.addMiddleware) {
             server.addMiddleware(basicAuth.middleware())
             Api.info('Basic Authentication enabled (fallback)')
+            if (!process.env.STUDIO_AUTH_USER || !process.env.STUDIO_AUTH_PASS) {
+               Api.warn(`⚠️  USING DEFAULT SECURITY CREDENTIALS:`)
+               Api.warn(`   User: ${user}`)
+               Api.warn(`   Password: ${pass}`)
+               Api.warn(`   Configure STUDIO_AUTH_USER and STUDIO_AUTH_PASS environment variables to override.`)
+            }
          }
       }
+
+      // Enforce immutability of default adapters (backends, storages, auths)
+      const expressApp = server.getNativeInstance()
+      expressApp.use(async (req: any, res: any, next: any) => {
+         const isMutation = req.method === 'PUT' || req.method === 'DELETE'
+         const matches = req.path?.match(/^\/api\/(backends|storages|auths)\/([^/]+)$/)
+         if (isMutation && matches) {
+            try {
+               const type = matches[1]
+               const id = matches[2]
+               let obj: any = null
+               if (type === 'backends') {
+                  obj = await StudioBackend.fromBackend<StudioBackend>(id)
+               } else if (type === 'storages') {
+                  obj = await StudioStorage.fromBackend<StudioStorage>(id)
+               } else if (type === 'auths') {
+                  obj = await StudioAuth.fromBackend<StudioAuth>(id)
+               }
+               if (obj && (obj.val('isDefault') === true || obj.val('isDefault') === 1 || obj.val('isDefault') === '1' || obj.val('isDefault') === 'true')) {
+                  Api.warn(`[ImmutabilityMDW] Blocked modification/deletion of default adapter: ${type}/${id}`)
+                  return res.status(400).json({ error: 'Default adapters are immutable and cannot be modified or deleted.' })
+               }
+            } catch (e: any) {
+               // Let request proceed so database driver handles missing ID errors
+            }
+         }
+         next()
+      })
       
       // Serve frontend only if explicitly requested (e.g. via Container compose)
       if (process.env.SERVE_FRONTEND === 'true') {
-         const webPath = path.resolve(process.cwd(), '../studio-web/dist')
+         let webPath = process.env.STUDIO_FRONTEND_DIR || path.resolve(process.cwd(), '../studio-web/dist')
+         if (!fs.existsSync(webPath)) {
+            try {
+               const pkgPath = require.resolve('@quatrain/studio-web/package.json')
+               webPath = path.join(path.dirname(pkgPath), 'dist')
+            } catch (e) {
+               // Fallback if require.resolve fails
+            }
+         }
+
          if (fs.existsSync(webPath)) {
             server.serveStatic(webPath, '/api')
-            Api.info('Front-end serving enabled (SERVE_FRONTEND=true)')
+            Api.info(`Front-end serving enabled (SERVE_FRONTEND=true) from: ${webPath}`)
          } else {
             Api.warn(`Front-end serving enabled but directory not found: ${webPath}`)
          }
@@ -383,6 +434,25 @@ export async function startStudioApi() {
                }
             }
 
+            const authId = environment.val('studioAuth')
+            let authConfig = null
+            if (authId) {
+               const a = await StudioAuth.fromBackend<StudioAuth>(authId)
+               if (a) {
+                  authConfig = {
+                     package: a.val('provider') === 'pocketbase' ? '@quatrain/auth-pocketbase' : 
+                              a.val('provider') === 'supabase' ? '@quatrain/auth-supabase' :
+                              a.val('provider') === 'firebase' ? '@quatrain/auth-firebase' :
+                              a.val('provider') === 'quatrain-oidc' ? '@quatrain/auth-oidc' : '@quatrain/auth-basic',
+                     adapter: a.val('provider') === 'pocketbase' ? 'PocketBaseAuthAdapter' :
+                              a.val('provider') === 'supabase' ? 'SupabaseAuthAdapter' :
+                              a.val('provider') === 'firebase' ? 'FirebaseAuthAdapter' :
+                              a.val('provider') === 'quatrain-oidc' ? 'AuthOIDC' : 'AuthBasic',
+                     config: a.val('options')
+                  }
+               }
+            }
+
             // Export all versioned models (mono-project currently)
             const modelsResult = await StudioModel.query()
                .execute(returnAs.AS_INSTANCES)
@@ -470,6 +540,7 @@ export async function startStudioApi() {
                authMode,
                backend: backendConfig,
                storage: storageConfig,
+               auth: authConfig,
                target: targetConfig || { type: 'docker-compose' },
                front: recipe === 'crud' ? true : false,
                outputTarget: outputTarget || environment.val('studioTarget') || 'docker-compose',
@@ -528,13 +599,26 @@ export async function startStudioApi() {
       // ==========================================
       // SERVER START
       // ==========================================
-      const PORT = Number(process.env.PORT) || 4000
-      server.start(PORT, () => {
-         Api.info(`🚀 Quatrain Studio API is running on http://localhost:${PORT}`)
-         Api.info(`💾 State persisted in ${sqlitePath}`)
-      })
+       const PORT = Number(process.env.PORT) || 4000
+       server.start(PORT, () => {
+          Api.info(`🚀 Quatrain Studio API is running on http://localhost:${PORT}`)
+          if (process.env.SERVE_FRONTEND === 'true') {
+             Api.info(`🖥️  Studio Web UI is served directly at http://localhost:${PORT}`)
+          } else {
+             Api.info(`🖥️  For front-end development, run the Vite dev server and open http://localhost:5173`)
+             Api.info(`   (It will communicate with this API server at http://localhost:${PORT}/api)`)
+          }
+          Api.info(`💾 SQLite Database path: ${sqlitePath}`)
+          Api.info(`📂 Data Directory: ${dataDir} (configurable via env var STUDIO_DATA_DIR)`)
+       })
    } catch (error) {
       Api.error(`Échec du démarrage de l'API : ${error}`)
       process.exit(1)
    }
+}
+
+if (typeof require !== 'undefined' && require.main === module) {
+   seedContainer().then(() => startStudioApi()).catch((err) => {
+      Api.error(`Échec de l'initialisation : ${err}`)
+   })
 }

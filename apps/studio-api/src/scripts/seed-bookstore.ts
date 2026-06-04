@@ -1,4 +1,5 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { SQLiteAdapter } from '@quatrain/backend-sqlite'
 import { MigrationManager } from '@quatrain/backend-migrations'
@@ -8,7 +9,14 @@ import { StringProperty, ObjectProperty } from '@quatrain/core'
 
 async function seed() {
    console.log('Seeding Book Store...')
-   const sqlitePath = path.resolve(process.cwd(), 'data/quatrain-studio.sqlite')
+   const dataDir = process.env.STUDIO_DATA_DIR || path.resolve(process.cwd(), 'data')
+   
+   // Ensure the data directory exists
+   if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+   }
+
+   const sqlitePath = path.join(dataDir, 'quatrain-studio.sqlite')
    const adapter = new SQLiteAdapter({ 
       config: { database: sqlitePath },
       middlewares: [new InjectMetaMiddleware(), new HistoryMiddleware()],

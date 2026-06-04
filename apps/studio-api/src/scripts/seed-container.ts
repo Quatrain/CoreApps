@@ -1,12 +1,19 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import { Backend, InjectMetaMiddleware } from '@quatrain/backend'
 import { SQLiteAdapter } from '@quatrain/backend-sqlite'
-import { StudioBackend, StudioStorage } from '@quatrain/studio'
+import { StudioBackend, StudioStorage, StudioAuth } from '@quatrain/studio'
 import { Api } from '@quatrain/api'
 import { HistoryMiddleware } from '../middlewares/HistoryMiddleware'
 
 export async function seedContainer() {
    const dataDir = process.env.STUDIO_DATA_DIR || path.resolve(process.cwd(), 'data')
+   
+   // Ensure the data directory exists
+   if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+   }
+
    const sqlitePath = path.join(dataDir, 'quatrain-studio.sqlite')
    const adapter = new SQLiteAdapter({ 
       config: { database: sqlitePath },
@@ -33,6 +40,12 @@ export async function seedContainer() {
       storage.set('options', { basePath: storageDir })
       storage.set('isDefault', true)
       await storage.save()
+
+      const auth = await StudioAuth.factory()
+      auth.set('name', 'Local Authentication')
+      auth.set('provider', 'quatrain-oidc')
+      auth.set('isDefault', true)
+      await auth.save()
       
       Api.info('Seeding complete.')
    } else {

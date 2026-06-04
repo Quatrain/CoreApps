@@ -10,7 +10,8 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target bun --external '*'"
+    "build": "bun build src/index.ts --outdir dist --target bun --external '*'",
+    "dev": "./bin/dev.sh"
   },
   "dependencies": {
     "@quatrain/api": "*",

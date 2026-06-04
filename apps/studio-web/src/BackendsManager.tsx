@@ -107,7 +107,7 @@ export function BackendsManager({ backends, models, onRefresh }: { backends: any
           <ManagerItemCard
             key={b.uid}
             title={b.name}
-            onDelete={() => handleDelete(b.uid)}
+            onDelete={b.isDefault ? undefined : () => handleDelete(b.uid)}
             deleteLabel={t('backends.delete')}
           >
             <Group mt="md" mb="xs">

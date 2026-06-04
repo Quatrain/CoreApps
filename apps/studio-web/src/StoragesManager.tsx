@@ -132,8 +132,8 @@ export function StoragesManager() {
           <ManagerItemCard
             key={s.uid}
             title={s.name}
-            onEdit={() => handleEdit(s)}
-            onDelete={() => handleDelete(s.uid)}
+            onEdit={s.isDefault ? undefined : () => handleEdit(s)}
+            onDelete={s.isDefault ? undefined : () => handleDelete(s.uid)}
           >
             <Stack gap="xs" mt="md" style={{ flex: 1 }}>
               <Badge color={s.provider === 's3' ? 'orange' : s.provider === 'gcs' ? 'blue' : 'gray'} variant="light" style={{ alignSelf: 'flex-start' }}>

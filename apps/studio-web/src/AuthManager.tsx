@@ -84,7 +84,7 @@ export function AuthManager() {
           <ManagerItemCard
             key={a.uid}
             title={a.name}
-            onDelete={() => handleDelete(a.uid)}
+            onDelete={a.isDefault ? undefined : () => handleDelete(a.uid)}
           >
             <Stack gap="xs" mt="md" style={{ flex: 1 }}>
               <Badge color={a.provider === 'pocketbase' ? 'teal' : a.provider === 'supabase' ? 'green' : a.provider === 'quatrain-oidc' ? 'violet' : 'orange'} variant="light" style={{ alignSelf: 'flex-start' }}>

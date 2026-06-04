@@ -23,6 +23,10 @@ packages/**/.*.txt
 *.sqlite
 *.sqlite3
 
+# Studio Dev persistence
+/containers/studio-image/data/
+/containers/studio-image/storage/
+
 # Compiled files
 *.map
 *.d.ts

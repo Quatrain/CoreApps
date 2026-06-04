@@ -15,15 +15,24 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
+# OCI standard labels
 LABEL org.opencontainers.image.title="Core Studio"
 LABEL org.opencontainers.image.description="Bundled developer environment for visual data modeling and dashboard generation in the Core ecosystem"
 LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 LABEL org.opencontainers.image.vendor="Quatrain Technologies"
 LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package.json ./
+
+# Copy built artifacts and dependencies with non-root user ownership
+COPY --from=builder --chown=bun:bun /app/dist ./dist
+COPY --from=builder --chown=bun:bun /app/node_modules ./node_modules
+COPY --chown=bun:bun package.json ./
+
+# Create data and storage directories and assign ownership to bun
+RUN mkdir -p /app/data /app/storage && chown -R bun:bun /app/data /app/storage
+
+# Run as non-root user
+USER bun
 
 ENV PORT=4000
 ENV STUDIO_DATA_DIR=/app/data

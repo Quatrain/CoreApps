@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "yarn workspaces foreach -A -v run build",
-    "dev": "yarn workspaces foreach -A -p -j parallel run dev"
+    "dev": "yarn workspaces foreach -A -ivp -j unlimited run dev"
   },
   "resolutions": {
     "@quatrain/ai-gemini": "portal:../Core/packages/ai-gemini",

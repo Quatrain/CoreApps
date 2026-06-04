@@ -16,8 +16,8 @@ export const api = {
     return (Array.isArray(res.data) ? res.data[0] : res.data) || null
   },
 
-  createModel: async (name: string, collectionName?: string) => {
-    const res = await apiClient.post('models', { name, collectionName, isPersisted: true })
+  createModel: async (name: string, collectionName?: string, studioProject?: string) => {
+    const res = await apiClient.post('models', { name, collectionName, studioProject, isPersisted: true })
     return (Array.isArray(res.data) ? res.data[0] : res.data) || null
   },
 
