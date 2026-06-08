@@ -10,7 +10,7 @@ import { Api } from '@quatrain/api'
 import { MigrationManager } from '@quatrain/backend-migrations'
 import { AppInfra } from '@quatrain/app'
 import { HistoryMiddleware } from './middlewares/HistoryMiddleware'
-import { AuthBasic } from '@quatrain/auth-basic'
+import { AuthBasic } from '@quatrain/auth-http-basic'
 import { seedContainer } from './scripts/seed-container'
 
 export { seedContainer }
@@ -443,7 +443,7 @@ export async function startStudioApi() {
                      package: a.val('provider') === 'pocketbase' ? '@quatrain/auth-pocketbase' : 
                               a.val('provider') === 'supabase' ? '@quatrain/auth-supabase' :
                               a.val('provider') === 'firebase' ? '@quatrain/auth-firebase' :
-                              a.val('provider') === 'quatrain-oidc' ? '@quatrain/auth-oidc' : '@quatrain/auth-basic',
+                              a.val('provider') === 'quatrain-oidc' ? '@quatrain/auth-oidc' : '@quatrain/auth-http-basic',
                      adapter: a.val('provider') === 'pocketbase' ? 'PocketBaseAuthAdapter' :
                               a.val('provider') === 'supabase' ? 'SupabaseAuthAdapter' :
                               a.val('provider') === 'firebase' ? 'FirebaseAuthAdapter' :

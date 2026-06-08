@@ -889,6 +889,7 @@ __metadata:
   resolution: "@quatrain/api-client@portal:../Core/packages/api-client::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/api": "workspace:*"
+    "@quatrain/http": "workspace:*"
     "@quatrain/log": "workspace:*"
   languageName: node
   linkType: soft
@@ -920,6 +921,7 @@ __metadata:
     "@quatrain/api": "workspace:*"
     "@quatrain/backend": "workspace:*"
     "@quatrain/core": "workspace:*"
+    "@quatrain/http": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -928,6 +930,7 @@ __metadata:
   resolution: "@quatrain/api@portal:../Core/packages/api::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/core": "workspace:*"
+    "@quatrain/http": "workspace:*"
     "@quatrain/log": "workspace:*"
   languageName: node
   linkType: soft
@@ -941,11 +944,12 @@ __metadata:
     "@quatrain/api-server": "workspace:*"
     "@quatrain/api-server-express": "workspace:*"
     "@quatrain/auth": "workspace:*"
-    "@quatrain/auth-basic": "workspace:*"
+    "@quatrain/auth-http-basic": "workspace:*"
     "@quatrain/auth-oidc": "workspace:*"
     "@quatrain/backend": "workspace:*"
     "@quatrain/backend-migrations": "workspace:*"
     "@quatrain/core": "workspace:*"
+    "@quatrain/http": "workspace:*"
     "@quatrain/log": "workspace:*"
     "@quatrain/messaging": "workspace:*"
     "@quatrain/queue": "workspace:*"
@@ -954,13 +958,14 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@quatrain/auth-basic@portal:../Core/packages/auth-basic::locator=core-apps-monorepo%40workspace%3A.":
+"@quatrain/auth-http-basic@portal:../Core/packages/auth-http-basic::locator=core-apps-monorepo%40workspace%3A.":
   version: 0.0.0-use.local
-  resolution: "@quatrain/auth-basic@portal:../Core/packages/auth-basic::locator=core-apps-monorepo%40workspace%3A."
+  resolution: "@quatrain/auth-http-basic@portal:../Core/packages/auth-http-basic::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/api": "workspace:*"
-    "@quatrain/auth": "workspace:*"
-    "@quatrain/backend": "workspace:*"
+    "@quatrain/auth": "npm:^1.2.3"
+    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/http": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -979,6 +984,7 @@ __metadata:
     "@quatrain/api": "workspace:*"
     "@quatrain/backend": "npm:^1.2.13"
     "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/http": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -1030,6 +1036,12 @@ __metadata:
     "@quatrain/types": "workspace:*"
     node-persist: "npm:^4.0.4"
     which: "npm:^5.0.0"
+  languageName: node
+  linkType: soft
+
+"@quatrain/http@portal:../Core/packages/http::locator=core-apps-monorepo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/http@portal:../Core/packages/http::locator=core-apps-monorepo%40workspace%3A."
   languageName: node
   linkType: soft
 
@@ -1110,11 +1122,12 @@ __metadata:
     "@quatrain/api-server": "npm:*"
     "@quatrain/api-server-express": "npm:*"
     "@quatrain/app": "npm:*"
-    "@quatrain/auth-basic": "npm:*"
+    "@quatrain/auth-http-basic": "npm:*"
     "@quatrain/backend": "npm:*"
     "@quatrain/backend-migrations": "npm:*"
     "@quatrain/backend-sqlite": "npm:*"
     "@quatrain/core": "npm:*"
+    "@quatrain/http": "npm:*"
     "@quatrain/studio": "npm:*"
     "@types/cors": "npm:^2.8.17"
     "@types/express": "npm:^4.17.21"
