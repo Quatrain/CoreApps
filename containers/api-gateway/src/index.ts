@@ -5,7 +5,7 @@ import { Api } from '@quatrain/api'
 import { readFileSync } from 'fs'
 import pkg from '../package.json'
 
-import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER } from './config'
+import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET } from './config'
 
 // Endpoints that bypass JSON caching entirely (can be expanded)
 const BYPASS_CACHE_PATHS = [
@@ -138,7 +138,7 @@ try {
 
 Api.info(`🚀 API Gateway (Bun) v${pkg.version} running on port ${PORT} (Built: ${buildDate})`)
 
-const gatewaySecret = process.env.GATEWAY_SECRET
+const gatewaySecret = GATEWAY_SECRET
 if (gatewaySecret) {
   Api.info(`[API Gateway] GATEWAY_SECRET is configured (length: ${gatewaySecret.length})`)
 } else {

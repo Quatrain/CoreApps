@@ -2,7 +2,7 @@ import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
 import { extractUserIdFromAuthHeader } from './jwt'
 
-import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER } from './config'
+import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER, GATEWAY_SECRET } from './config'
 
 /**
  * Handles incoming HTTP requests for media files (e.g. /api/medias/:uid/file).
@@ -46,7 +46,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   // 1. Call upstream server /internal endpoint
   const authEndpoint = `${API_UPSTREAM_URL}/internal/${uid}?action=${action}`
-  const gatewaySecret = process.env.GATEWAY_SECRET
+  const gatewaySecret = GATEWAY_SECRET
   
   let authRes: Response
   try {
@@ -116,7 +116,11 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const isImage = mimeType.startsWith('image/')
   const shouldCache = isImage && (size / (1024 * 1024)) <= MAX_CACHE_SIZE_MB
 
-  Api.info(`[MediaProxy] Strategy: STREAMING | Size: ${sizeMB} MB | MIME: ${mimeType} | Caching: ${shouldCache}`)
+  // Extract Range header from incoming request
+  const rangeHeader = req.headers.get('range') || req.headers.get('Range')
+  const rangeLog = rangeHeader ? ` | Range: ${rangeHeader}` : ''
+
+  Api.info(`[MediaProxy] Strategy: STREAMING | Size: ${sizeMB} MB | MIME: ${mimeType}${rangeLog} | Caching: ${shouldCache}`)
 
   // Update response content type from metadata
   responseHeaders.set('Content-Type', mimeType)
@@ -140,21 +144,41 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   Api.info(`[MediaProxy] Proxying stream from Storage for ${uid} (cache=${shouldCache})`)
   
+  const storageFetchHeaders: Record<string, string> = {}
+  if (rangeHeader) {
+    storageFetchHeaders['Range'] = rangeHeader
+  }
+
   let storageRes: Response
   try {
-    storageRes = await fetch(storageUrl)
+    storageRes = await fetch(storageUrl, {
+      headers: storageFetchHeaders
+    })
   } catch (err) {
     Api.error(`[MediaProxy] Failed to fetch from Storage:`, err)
     return new Response('Failed to download media', { status: 502 })
   }
 
-  if (!storageRes.ok) {
+  if (!storageRes.ok && storageRes.status !== 206) {
     // S3 and similar storages return 403 Forbidden instead of 404 Not Found when a file doesn't exist
     // on a bucket configured without `s3:ListBucket` permissions.
     // Since upstream validation already passed, a 403 here strictly means the file is missing.
     const status = storageRes.status === 403 ? 404 : storageRes.status
     Api.warn(`[MediaProxy] Storage download failed for media ${uid} (action: ${action}). Provider returned status: ${storageRes.status} (resolved as ${status})`)
     return new Response('Storage Error or Not Found', { status })
+  }
+
+  // Forward range & content length headers if present in storage response
+  if (storageRes.headers.has('content-range')) {
+    responseHeaders.set('Content-Range', storageRes.headers.get('content-range')!)
+  }
+  if (storageRes.headers.has('accept-ranges')) {
+    responseHeaders.set('Accept-Ranges', storageRes.headers.get('accept-ranges')!)
+  } else {
+    responseHeaders.set('Accept-Ranges', 'bytes')
+  }
+  if (storageRes.headers.has('content-length')) {
+    responseHeaders.set('Content-Length', storageRes.headers.get('content-length')!)
   }
 
   if (shouldCache) {
@@ -170,5 +194,8 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   // 3. Direct Streaming (Zero-Copy-ish)
   // Bun optimizes streaming Responses heavily.
-  return new Response(storageRes.body, { headers: responseHeaders })
+  return new Response(storageRes.body, {
+    status: storageRes.status,
+    headers: responseHeaders
+  })
 }
