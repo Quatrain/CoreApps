@@ -2,7 +2,7 @@ import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
 import { extractUserIdFromAuthHeader } from './jwt'
 
-import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER, GATEWAY_SECRET } from './config'
+import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER, GATEWAY_SECRET, GATEWAY_MEDIA_IMMUTABLE } from './config'
 
 /**
  * Handles incoming HTTP requests for media files (e.g. /api/medias/:uid/file).
@@ -30,13 +30,25 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const uid = match[2]
   const action = match[3]
 
-  // Default immutable caching headers for static media
+  // Check for per-request cache overrides via query params or headers
+  const noCacheQuery = url.searchParams.get('nocache') === 'true' || req.headers.get('cache-control') === 'no-cache'
+  const mutableQuery = url.searchParams.get('mutable') === 'true'
+
+  let cacheControlHeader = `public, max-age=${GATEWAY_CACHE_MAX_AGE}, immutable`
+  if (noCacheQuery) {
+    cacheControlHeader = 'no-cache, no-store, must-revalidate'
+  } else if (mutableQuery || !GATEWAY_MEDIA_IMMUTABLE) {
+    cacheControlHeader = `public, max-age=${GATEWAY_CACHE_MAX_AGE}`
+  }
+
+  // Default caching & CORS headers for static media
   const responseHeaders = new Headers({
-    'Cache-Control': `public, max-age=${GATEWAY_CACHE_MAX_AGE}, immutable`,
+    'Cache-Control': cacheControlHeader,
     'Content-Type': 'application/octet-stream',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': '*'
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges, ETag, Last-Modified'
   })
 
   // Immediately return 204 for OPTIONS preflight requests
@@ -168,7 +180,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     return new Response('Storage Error or Not Found', { status })
   }
 
-  // Forward range & content length headers if present in storage response
+  // Forward range, validator & content length headers if present in storage response
   if (storageRes.headers.has('content-range')) {
     responseHeaders.set('Content-Range', storageRes.headers.get('content-range')!)
   }
@@ -179,6 +191,12 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   }
   if (storageRes.headers.has('content-length')) {
     responseHeaders.set('Content-Length', storageRes.headers.get('content-length')!)
+  }
+  if (storageRes.headers.has('etag')) {
+    responseHeaders.set('ETag', storageRes.headers.get('etag')!)
+  }
+  if (storageRes.headers.has('last-modified')) {
+    responseHeaders.set('Last-Modified', storageRes.headers.get('last-modified')!)
   }
 
   if (shouldCache) {

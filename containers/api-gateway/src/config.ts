@@ -21,4 +21,5 @@ export const GATEWAY_CACHE_MAX_AGE = Math.max(envMaxAge, 2592000) // Minimum 1 m
 
 export const GATEWAY_CACHE_API_BY_USER = process.env.GATEWAY_CACHE_API_BY_USER === 'true'
 export const GATEWAY_CACHE_MEDIA_BY_USER = process.env.GATEWAY_CACHE_MEDIA_BY_USER === 'true'
+export const GATEWAY_MEDIA_IMMUTABLE = process.env.GATEWAY_MEDIA_IMMUTABLE !== 'false'
 
