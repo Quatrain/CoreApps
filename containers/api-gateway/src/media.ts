@@ -1,6 +1,6 @@
 import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
-import { extractUserIdFromAuthHeader } from './jwt'
+import { extractAuthHeader, extractUserIdFromAuthHeader } from './jwt'
 
 import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER, GATEWAY_SECRET, GATEWAY_MEDIA_IMMUTABLE } from './config'
 
@@ -18,9 +18,7 @@ import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MA
  */
 export async function handleMediaRequest(req: Request, url: URL): Promise<Response> {
   Api.info(`[MediaProxy] Received request for ${url.pathname}`)
-  const authHeader = req.headers.get('authorization')
-  const tokenQuery = url.searchParams.get('token')
-  const finalAuthHeader = authHeader || (tokenQuery ? `Bearer ${tokenQuery}` : '')
+  const finalAuthHeader = extractAuthHeader(req, url)
   
   // Extract UID and action from the path. Assuming: /blob/medias/:uid/file or /api/blob/...
   const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail\d*)$/)
