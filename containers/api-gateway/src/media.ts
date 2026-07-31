@@ -2,7 +2,16 @@ import { getMediaBuffer, setMediaBuffer } from './cache'
 import { Api } from '@quatrain/api'
 import { extractAuthHeader, extractUserIdFromAuthHeader } from './jwt'
 
-import { API_UPSTREAM_URL, MAX_CACHE_SIZE_MB, GATEWAY_EXCLUDED_MIMES, GATEWAY_MAXSIZE, GATEWAY_CACHE_MAX_AGE, GATEWAY_CACHE_MEDIA_BY_USER, GATEWAY_SECRET, GATEWAY_MEDIA_IMMUTABLE } from './config'
+import {
+  API_UPSTREAM_URL,
+  MAX_CACHE_SIZE_MB,
+  GATEWAY_EXCLUDED_MIMES,
+  GATEWAY_MAXSIZE,
+  GATEWAY_CACHE_MAX_AGE,
+  GATEWAY_CACHE_MEDIA_BY_USER,
+  GATEWAY_SECRET,
+  GATEWAY_MEDIA_IMMUTABLE
+} from './config'
 
 /**
  * Handles incoming HTTP requests for media files (e.g. /api/medias/:uid/file).

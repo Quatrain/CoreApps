@@ -15,6 +15,7 @@ const BYPASS_CACHE_PATHS = [
 
 Bun.serve({
   port: PORT,
+  compress: true,
   
   async fetch(req) {
     const url = new URL(req.url)
@@ -62,9 +63,7 @@ Bun.serve({
     const targetUrl = new URL(url.pathname + url.search, API_UPSTREAM_URL)
     
     // Copy original headers
-    const headers = new Headers(req.headers)
-    // Avoid upstream gzip so we can cache raw string easily (optional, but safer)
-    headers.delete('accept-encoding') 
+    const headers = new Headers(req.headers) 
 
     // Convert URL object to string to satisfy strict TypeScript DOM typings for Request constructor
     const upstreamReq = new Request(targetUrl.toString(), {
