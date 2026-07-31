@@ -37,8 +37,12 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   const uid = match[2]
   const action = match[3]
 
-  // Check for per-request cache overrides via query params or headers
-  const noCacheQuery = url.searchParams.get('nocache') === 'true' || req.headers.get('cache-control') === 'no-cache'
+  // Check for per-request cache overrides via query params or headers (e.g. CTRL+SHIFT+R)
+  const reqCacheControl = req.headers.get('cache-control') || ''
+  const reqPragma = req.headers.get('pragma') || ''
+  const noCacheQuery = url.searchParams.get('nocache') === 'true' || 
+                       reqCacheControl.includes('no-cache') || 
+                       reqPragma.includes('no-cache')
   const mutableQuery = url.searchParams.get('mutable') === 'true'
 
   let cacheControlHeader = `public, max-age=${GATEWAY_CACHE_MAX_AGE}, immutable`

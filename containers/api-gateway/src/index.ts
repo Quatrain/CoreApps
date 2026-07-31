@@ -29,7 +29,15 @@ Bun.serve({
 
     // 2. Check if we should cache this JSON request
     const isGet = req.method === 'GET'
-    const shouldBypass = BYPASS_CACHE_PATHS.some(p => path.startsWith(p))
+    
+    // Catch Chrome/Firefox hard refresh signals (CTRL + SHIFT + R)
+    const cacheControlReq = req.headers.get('cache-control') || ''
+    const pragmaReq = req.headers.get('pragma') || ''
+    const isNoCacheRequested = cacheControlReq.includes('no-cache') || 
+                               pragmaReq.includes('no-cache') || 
+                               url.searchParams.get('nocache') === 'true'
+
+    const shouldBypass = isNoCacheRequested || BYPASS_CACHE_PATHS.some(p => path.startsWith(p))
     
     let cacheKey: string | null = null
 
@@ -54,6 +62,13 @@ Bun.serve({
           }
         })
       }
+    } else if (isGet && isNoCacheRequested) {
+      // If client forced a hard refresh, construct cacheKey to update Redis cache with fresh upstream data
+      const authHeader = req.headers.get('authorization')
+      const userId = extractUserIdFromAuthHeader(authHeader)
+      const cacheScope = GATEWAY_CACHE_API_BY_USER ? userId : 'global'
+      cacheKey = `api:cache:${cacheScope}:${url.pathname}${url.search}`
+      Api.info(`[API Gateway] Hard refresh detected (Cache-Control: no-cache), bypassing Redis cache for ${cacheKey}`)
     }
 
     // 3. Proxy to Upstream
