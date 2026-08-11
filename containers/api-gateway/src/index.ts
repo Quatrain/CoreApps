@@ -22,8 +22,8 @@ Bun.serve({
     const path = url.pathname
 
     // 1. Media Routing
-    // e.g. /blob/medias/123/file or /api/blob/videos/123/thumbnail
-    if (path.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail\d*)$/)) {
+    // e.g. /blob/medias/123/file, /api/blob/videos/123/thumbnail, /blob/videos/123/vectos/456/mp4
+    if (path.match(/^\/?(api\/)?blob\/(.+)\/([a-zA-Z0-9_-]+)$/)) {
       return handleMediaRequest(req, url)
     }
 

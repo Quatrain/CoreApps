@@ -29,8 +29,8 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
   Api.info(`[MediaProxy] Received request for ${url.pathname}`)
   const finalAuthHeader = extractAuthHeader(req, url)
   
-  // Extract UID and action from the path. Assuming: /blob/medias/:uid/file or /api/blob/...
-  const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/(file|thumbnail\d*)$/)
+  // Extract UID and action from the path. Assuming: /blob/medias/:uid/file, /blob/videos/:vid/vectos/:uid/mp4
+  const match = url.pathname.match(/^\/?(api\/)?blob\/(.+)\/([a-zA-Z0-9_-]+)$/)
   if (!match) {
     return new Response('Invalid media path', { status: 400 })
   }
