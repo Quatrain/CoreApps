@@ -124,16 +124,21 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
 
   // 1.5. Check Excluded Mimes and Size
   const sizeMB = (size / (1024 * 1024)).toFixed(2)
+  const isVideo = mimeType.startsWith('video/')
   
-  if (mimeType !== 'application/pdf' && GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
+  if (mimeType !== 'application/pdf' && !isVideo && GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
     Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Excluded MIME (${mimeType}) | Size: ${sizeMB} MB`)
-    return Response.redirect(storageUrl, 302)
+    const redirectHeaders = new Headers(responseHeaders)
+    redirectHeaders.set('Location', storageUrl)
+    return new Response(null, { status: 302, headers: redirectHeaders })
   }
   
-  if (GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
+  if (!isVideo && GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
     const maxSizeMB = (GATEWAY_MAXSIZE / (1024 * 1024)).toFixed(2)
     Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Size exceeds GATEWAY_MAXSIZE (${sizeMB} MB > ${maxSizeMB} MB)`)
-    return Response.redirect(storageUrl, 302)
+    const redirectHeaders = new Headers(responseHeaders)
+    redirectHeaders.set('Location', storageUrl)
+    return new Response(null, { status: 302, headers: redirectHeaders })
   }
 
   const isImage = mimeType.startsWith('image/')
