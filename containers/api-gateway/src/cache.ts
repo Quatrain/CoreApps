@@ -22,8 +22,11 @@ export async function getCachedPayload(key: string): Promise<string | null> {
   }
 }
 
+import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
+
 /**
  * Stores a string payload into Redis with a specified time-to-live.
+ * Skips caching if the payload size exceeds GATEWAY_MAX_CACHE_BODY_BYTES.
  * 
  * @param key - The unique cache key for the payload.
  * @param data - The string data to cache.
@@ -31,6 +34,14 @@ export async function getCachedPayload(key: string): Promise<string | null> {
  * @returns A promise resolving when the operation completes.
  */
 export async function setCachedPayload(key: string, data: string, ttlSeconds: number = 3600): Promise<void> {
+  const byteLength = Buffer.byteLength(data, 'utf8')
+  if (byteLength > GATEWAY_MAX_CACHE_BODY_BYTES) {
+    Api.info(
+      `[Redis] Skipping cache for key ${key}: payload size (${(byteLength / 1024).toFixed(1)} KB) exceeds maximum limit (${(GATEWAY_MAX_CACHE_BODY_BYTES / 1024).toFixed(1)} KB)`
+    )
+    return
+  }
+
   try {
     await redis.setex(key, ttlSeconds, data)
   } catch (err) {

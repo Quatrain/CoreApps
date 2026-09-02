@@ -5,7 +5,7 @@ import { Api } from '@quatrain/api'
 import { readFileSync } from 'fs'
 import pkg from '../package.json'
 
-import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET } from './config'
+import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET, GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
 
 // Endpoints that bypass JSON caching entirely (can be expanded)
 const BYPASS_CACHE_PATHS = [
@@ -105,25 +105,35 @@ Bun.serve({
     }
 
     // 4. Cache the response if applicable
-    // We only cache 200 OK JSON responses that don't have "no-cache"
+    // We only cache 200 OK JSON responses that don't have "no-cache" and fit within max size limit
     const cacheControl = upstreamRes.headers.get('cache-control') || ''
+    const contentLength = Number.parseInt(upstreamRes.headers.get('content-length') || '0', 10)
+    const isTooLarge = contentLength > GATEWAY_MAX_CACHE_BODY_BYTES
     const isCacheable = cacheKey && 
                         upstreamRes.status === 200 && 
+                        !isTooLarge &&
                         !cacheControl.includes('no-cache') &&
                         !cacheControl.includes('no-store')
 
     if (isCacheable) {
       // Read response text to cache it
       const responseText = await upstreamRes.text()
+      const byteLength = Buffer.byteLength(responseText, 'utf8')
       
-      // Extract custom TTL from max-age if present, else default to 1h
-      let ttl = 3600
-      const match = cacheControl.match(/max-age=(\d+)/)
-      if (match) {
-        ttl = Number.parseInt(match[1], 10)
+      if (byteLength <= GATEWAY_MAX_CACHE_BODY_BYTES) {
+        // Extract custom TTL from max-age if present, else default to 1h
+        let ttl = 3600
+        const match = cacheControl.match(/max-age=(\d+)/)
+        if (match) {
+          ttl = Number.parseInt(match[1], 10)
+        }
+        
+        await setCachedPayload(cacheKey, responseText, ttl)
+      } else {
+        Api.info(
+          `[API Gateway] Skipping cache for ${cacheKey}: payload size (${(byteLength / 1024).toFixed(1)} KB) exceeds maximum limit (${(GATEWAY_MAX_CACHE_BODY_BYTES / 1024).toFixed(1)} KB)`
+        )
       }
-      
-      await setCachedPayload(cacheKey, responseText, ttl)
 
       // Reconstruct response since we consumed the body
       const newHeaders = new Headers(upstreamRes.headers)

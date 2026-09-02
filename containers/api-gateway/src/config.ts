@@ -9,6 +9,7 @@ if (!API_UPSTREAM_URL) {
 }
 
 export const MAX_CACHE_SIZE_MB = Number.parseInt(process.env.MAX_CACHE_SIZE_MB || '5', 10)
+export const GATEWAY_MAX_CACHE_BODY_BYTES = Number.parseInt(process.env.GATEWAY_MAX_CACHE_BODY_BYTES || '1048576', 10) // 1 MB default
 export const GATEWAY_MAXSIZE = process.env.GATEWAY_MAXSIZE ? Number.parseInt(process.env.GATEWAY_MAXSIZE, 10) : null
 export const GATEWAY_EXCLUDED_MIMES = process.env.GATEWAY_EXCLUDED_MIMES 
   ? process.env.GATEWAY_EXCLUDED_MIMES.split(',').map(m => m.trim())
