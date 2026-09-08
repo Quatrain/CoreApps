@@ -7,7 +7,9 @@ import pkg from '../package.json'
 
 import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET, GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
 
-// Endpoints that bypass JSON caching entirely (can be expanded)
+import { getRequestedFormat, isSupportedApiContentType, getFormatContentType } from './format'
+
+// Endpoints that bypass API caching entirely (can be expanded)
 const BYPASS_CACHE_PATHS = [
   '/api/health',
   '/api/medias/' // Media has its own proxy handler
@@ -27,8 +29,9 @@ Bun.serve({
       return handleMediaRequest(req, url)
     }
 
-    // 2. Check if we should cache this JSON request
+    // 2. Check if we should cache this API request
     const isGet = req.method === 'GET'
+    const format = getRequestedFormat(req, url)
     
     // Catch Chrome/Firefox hard refresh signals (CTRL + SHIFT + R)
     const cacheControlReq = req.headers.get('cache-control') || ''
@@ -45,17 +48,19 @@ Bun.serve({
       const authHeader = req.headers.get('authorization')
       const userId = extractUserIdFromAuthHeader(authHeader)
       
-      // cache key format: api:cache:<userIdOrGlobal>:<pathAndQuery>
+      // cache key format: api:cache:<userIdOrGlobal>:<pathAndQuery>:<format>
       const cacheScope = GATEWAY_CACHE_API_BY_USER ? userId : 'global'
-      cacheKey = `api:cache:${cacheScope}:${url.pathname}${url.search}`
+      cacheKey = `api:cache:${cacheScope}:${url.pathname}${url.search}:${format}`
       
       const cached = await getCachedPayload(cacheKey)
       if (cached) {
-        Api.info(`[API Gateway] JSON Cache HIT for ${cacheKey}`)
+        Api.info(`[API Gateway] Cache HIT for ${cacheKey}`)
+        const contentType = getFormatContentType(format)
         return new Response(cached, {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': contentType,
             'X-Cache': 'HIT',
+            'Vary': 'Accept',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': '*'
@@ -67,7 +72,7 @@ Bun.serve({
       const authHeader = req.headers.get('authorization')
       const userId = extractUserIdFromAuthHeader(authHeader)
       const cacheScope = GATEWAY_CACHE_API_BY_USER ? userId : 'global'
-      cacheKey = `api:cache:${cacheScope}:${url.pathname}${url.search}`
+      cacheKey = `api:cache:${cacheScope}:${url.pathname}${url.search}:${format}`
       Api.info(`[API Gateway] Hard refresh detected (Cache-Control: no-cache), bypassing Redis cache for ${cacheKey}`)
     }
 
@@ -105,20 +110,24 @@ Bun.serve({
     }
 
     // 4. Cache the response if applicable
-    // We only cache 200 OK JSON responses that don't have "no-cache" and fit within max size limit
+    // We only cache 200 OK JSON or MessagePack responses that don't have "no-cache" and fit within max size limit
+    const isSupportedApiPayload = isSupportedApiContentType(upstreamRes.headers.get('content-type'))
+
     const cacheControl = upstreamRes.headers.get('cache-control') || ''
     const contentLength = Number.parseInt(upstreamRes.headers.get('content-length') || '0', 10)
     const isTooLarge = contentLength > GATEWAY_MAX_CACHE_BODY_BYTES
     const isCacheable = cacheKey && 
                         upstreamRes.status === 200 && 
+                        isSupportedApiPayload &&
                         !isTooLarge &&
                         !cacheControl.includes('no-cache') &&
                         !cacheControl.includes('no-store')
 
     if (isCacheable) {
-      // Read response text to cache it
-      const responseText = await upstreamRes.text()
-      const byteLength = Buffer.byteLength(responseText, 'utf8')
+      // Read response as binary buffer to prevent UTF-8 string decoding corruption on MessagePack payloads
+      const arrayBuffer = await upstreamRes.arrayBuffer()
+      const responseBuffer = Buffer.from(arrayBuffer)
+      const byteLength = responseBuffer.byteLength
       
       if (byteLength <= GATEWAY_MAX_CACHE_BODY_BYTES) {
         // Extract custom TTL from max-age if present, else default to 1h
@@ -128,7 +137,7 @@ Bun.serve({
           ttl = Number.parseInt(match[1], 10)
         }
         
-        await setCachedPayload(cacheKey, responseText, ttl)
+        await setCachedPayload(cacheKey, responseBuffer, ttl)
       } else {
         Api.info(
           `[API Gateway] Skipping cache for ${cacheKey}: payload size (${(byteLength / 1024).toFixed(1)} KB) exceeds maximum limit (${(GATEWAY_MAX_CACHE_BODY_BYTES / 1024).toFixed(1)} KB)`
@@ -138,8 +147,10 @@ Bun.serve({
       // Reconstruct response since we consumed the body
       const newHeaders = new Headers(upstreamRes.headers)
       newHeaders.set('X-Cache', 'MISS')
+      const existingVary = upstreamRes.headers.get('vary')
+      newHeaders.set('Vary', existingVary ? `${existingVary}, Accept` : 'Accept')
       
-      return new Response(responseText, {
+      return new Response(responseBuffer, {
         status: upstreamRes.status,
         headers: newHeaders
       })

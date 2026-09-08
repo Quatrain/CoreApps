@@ -7,34 +7,34 @@ export const redis = new Redis(REDIS_URL)
 redis.on('connect', () => Api.info(`[Redis] Connected to ${REDIS_URL}`))
 redis.on('error', (err) => Api.error(`[Redis] Error:`, err))
 
+import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
+
 /**
- * Retrieves a cached string payload from Redis by its key.
+ * Retrieves a cached binary or string payload from Redis by its key as a Buffer.
  * 
  * @param key - The unique cache key for the payload.
- * @returns A promise resolving to the cached string, or null if not found or an error occurs.
+ * @returns A promise resolving to the cached Buffer, or null if not found or an error occurs.
  */
-export async function getCachedPayload(key: string): Promise<string | null> {
+export async function getCachedPayload(key: string): Promise<Buffer | null> {
   try {
-    return await redis.get(key)
+    return await redis.getBuffer(key)
   } catch (err) {
     Api.error(`[Redis] Failed to get cache key ${key}:`, err)
     return null
   }
 }
 
-import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
-
 /**
- * Stores a string payload into Redis with a specified time-to-live.
+ * Stores a binary Buffer or string payload into Redis with a specified time-to-live.
  * Skips caching if the payload size exceeds GATEWAY_MAX_CACHE_BODY_BYTES.
  * 
  * @param key - The unique cache key for the payload.
- * @param data - The string data to cache.
+ * @param data - The Buffer or string data to cache.
  * @param ttlSeconds - Time-to-live in seconds (default is 3600).
  * @returns A promise resolving when the operation completes.
  */
-export async function setCachedPayload(key: string, data: string, ttlSeconds: number = 3600): Promise<void> {
-  const byteLength = Buffer.byteLength(data, 'utf8')
+export async function setCachedPayload(key: string, data: Buffer | string, ttlSeconds: number = 3600): Promise<void> {
+  const byteLength = Buffer.isBuffer(data) ? data.byteLength : Buffer.byteLength(data, 'utf8')
   if (byteLength > GATEWAY_MAX_CACHE_BODY_BYTES) {
     Api.info(
       `[Redis] Skipping cache for key ${key}: payload size (${(byteLength / 1024).toFixed(1)} KB) exceeds maximum limit (${(GATEWAY_MAX_CACHE_BODY_BYTES / 1024).toFixed(1)} KB)`
