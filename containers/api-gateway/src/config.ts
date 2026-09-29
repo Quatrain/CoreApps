@@ -24,3 +24,9 @@ export const GATEWAY_CACHE_API_BY_USER = process.env.GATEWAY_CACHE_API_BY_USER =
 export const GATEWAY_CACHE_MEDIA_BY_USER = process.env.GATEWAY_CACHE_MEDIA_BY_USER === 'true'
 export const GATEWAY_MEDIA_IMMUTABLE = process.env.GATEWAY_MEDIA_IMMUTABLE !== 'false'
 
+const envIdleTimeout = process.env.IDLE_TIMEOUT ?? process.env.GATEWAY_IDLE_TIMEOUT
+export const GATEWAY_IDLE_TIMEOUT = envIdleTimeout !== undefined
+  ? (Number.isNaN(Number.parseInt(envIdleTimeout, 10)) ? 0 : Number.parseInt(envIdleTimeout, 10))
+  : 0
+export const IDLE_TIMEOUT = GATEWAY_IDLE_TIMEOUT
+

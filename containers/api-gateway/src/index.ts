@@ -5,7 +5,7 @@ import { Api } from '@quatrain/api'
 import { readFileSync } from 'fs'
 import pkg from '../package.json'
 
-import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET, GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
+import { PORT, API_UPSTREAM_URL, GATEWAY_CACHE_API_BY_USER, GATEWAY_SECRET, GATEWAY_MAX_CACHE_BODY_BYTES, GATEWAY_IDLE_TIMEOUT } from './config'
 
 import { getRequestedFormat, isSupportedApiContentType, getFormatContentType } from './format'
 
@@ -18,6 +18,7 @@ const BYPASS_CACHE_PATHS = [
 Bun.serve({
   port: PORT,
   compress: true,
+  idleTimeout: GATEWAY_IDLE_TIMEOUT,
   
   async fetch(req) {
     const url = new URL(req.url)
@@ -172,6 +173,7 @@ try {
 }
 
 Api.info(`🚀 API Gateway (Bun) v${pkg.version} running on port ${PORT} (Built: ${buildDate})`)
+Api.info(`[API Gateway] idleTimeout is set to ${GATEWAY_IDLE_TIMEOUT}s (${GATEWAY_IDLE_TIMEOUT === 0 ? 'disabled' : 'enabled'})`)
 
 const gatewaySecret = GATEWAY_SECRET
 if (gatewaySecret) {

@@ -17,6 +17,7 @@ cp .env.dist .env
 - **`GATEWAY_CACHE_MEDIA_BY_USER`**: (Default `true`) When `true`, media blobs (images, etc.) are cached individually per user. Useful when media has restricted access lists.
 - **`GATEWAY_MAXSIZE`**: Files exceeding this size (in bytes) will not be streamed through the gateway. Instead, a `302 Redirect` to the underlying S3/Storage bucket URL is returned to the client.
 - **`GATEWAY_EXCLUDED_MIMES`**: A comma-separated list of MIME types (e.g., `application/pdf`) that should never be proxied/streamed and should immediately return a `302 Redirect` to the client.
+- **`IDLE_TIMEOUT` / `GATEWAY_IDLE_TIMEOUT`**: (Default `0`) Bun socket idle timeout in seconds. Setting to `0` disables the idle timeout, preventing socket disconnection during slow or long-running streaming transfers.
 
 ## 2. Setting Up in Docker / Podman
 
