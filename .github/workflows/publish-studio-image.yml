@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - 'containers/studio-image/**'
       - 'apps/studio-api/**'
@@ -105,9 +106,10 @@ jobs:
       - name: Sync with remote to avoid push conflicts
         run: |
           git config pull.rebase true
-          git pull origin main --autostash
+          git pull origin ${{ github.ref_name }} --autostash
 
       - name: Bump package version and push tag
+        if: github.ref == 'refs/heads/main'
         uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'

@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - 'containers/api-gateway/**'
 
@@ -95,6 +96,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
 
       - name: Bump package version and push tag
+        if: github.ref == 'refs/heads/main'
         uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'
