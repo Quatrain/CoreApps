@@ -87,9 +87,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-      - name: Restore package.json to original (with placeholders)
-        run: git checkout containers/api-gateway/package.json
-
       - name: Bump package version and push tag
         uses: Quatrain/actions/push-tag@v1
         with:

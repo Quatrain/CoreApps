@@ -98,9 +98,8 @@ jobs:
           
       - name: Sync with remote to avoid push conflicts
         run: |
-          git restore containers/studio-image/package.json
           git config pull.rebase true
-          git pull origin main
+          git pull origin main --autostash
 
       - name: Bump package version and push tag
         uses: Quatrain/actions/push-tag@v1

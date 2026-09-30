@@ -15,7 +15,7 @@
     "directory": "containers/api-gateway"
   },
   "dependencies": {
-    "@quatrain/api": "*",
+    "@quatrain/api": "1.1.8",
     "ioredis": "^5.3.0"
   },
   "devDependencies": {
