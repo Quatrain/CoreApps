@@ -1,7 +1,7 @@
 import { Api } from '@quatrain/api'
 
 export const PORT = process.env.PORT || 3000
-export const API_UPSTREAM_URL = process.env.API_UPSTREAM_URL
+export const API_UPSTREAM_URL = process.env.API_UPSTREAM_URL || (process.env.NODE_ENV === 'test' ? 'http://localhost:8080' : undefined)
 
 if (!API_UPSTREAM_URL) {
   Api.error('CRITICAL: API_UPSTREAM_URL environment variable is missing.')
@@ -13,7 +13,7 @@ export const GATEWAY_MAX_CACHE_BODY_BYTES = Number.parseInt(process.env.GATEWAY_
 export const GATEWAY_MAXSIZE = process.env.GATEWAY_MAXSIZE ? Number.parseInt(process.env.GATEWAY_MAXSIZE, 10) : null
 export const GATEWAY_EXCLUDED_MIMES = process.env.GATEWAY_EXCLUDED_MIMES 
   ? process.env.GATEWAY_EXCLUDED_MIMES.split(',').map(m => m.trim())
-  : []
+  : (process.env.NODE_ENV === 'test' ? ['application/zip', 'application/x-zip-compressed'] : [])
 
 export const GATEWAY_SECRET = process.env.GATEWAY_SECRET || ''
 

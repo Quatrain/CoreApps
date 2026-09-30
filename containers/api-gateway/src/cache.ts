@@ -1,13 +1,18 @@
-import Redis from 'ioredis'
+import { RedisCacheAdapter } from '@quatrain/cache-redis'
 import { Api } from '@quatrain/api'
+import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
-export const redis = new Redis(REDIS_URL)
 
-redis.on('connect', () => Api.info(`[Redis] Connected to ${REDIS_URL}`))
-redis.on('error', (err) => Api.error(`[Redis] Error:`, err))
+/**
+ * Global Redis cache adapter backed by @quatrain/cache-redis.
+ */
+export const cacheAdapter = new RedisCacheAdapter(REDIS_URL)
 
-import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
+/**
+ * Underlying Redis client instance for direct protocol operations (e.g. scan, info).
+ */
+export const redis = cacheAdapter.manager.client
 
 /**
  * Retrieves a cached binary or string payload from Redis by its key as a Buffer.
@@ -17,7 +22,7 @@ import { GATEWAY_MAX_CACHE_BODY_BYTES } from './config'
  */
 export async function getCachedPayload(key: string): Promise<Buffer | null> {
   try {
-    return await redis.getBuffer(key)
+    return await cacheAdapter.getBuffer(key)
   } catch (err) {
     Api.error(`[Redis] Failed to get cache key ${key}:`, err)
     return null
@@ -43,7 +48,7 @@ export async function setCachedPayload(key: string, data: Buffer | string, ttlSe
   }
 
   try {
-    await redis.setex(key, ttlSeconds, data)
+    await cacheAdapter.set(key, data, ttlSeconds)
   } catch (err) {
     Api.error(`[Redis] Failed to set cache key ${key}:`, err)
   }
@@ -57,7 +62,7 @@ export async function setCachedPayload(key: string, data: Buffer | string, ttlSe
  */
 export async function getMediaBuffer(key: string): Promise<Buffer | null> {
   try {
-    return await redis.getBuffer(key)
+    return await cacheAdapter.getBuffer(key)
   } catch (err) {
     Api.error(`[Redis] Failed to get media buffer for key ${key}:`, err)
     return null
@@ -74,7 +79,7 @@ export async function getMediaBuffer(key: string): Promise<Buffer | null> {
  */
 export async function setMediaBuffer(key: string, buffer: Buffer, ttlSeconds: number = 86400): Promise<void> {
   try {
-    await redis.setex(key, ttlSeconds, buffer)
+    await cacheAdapter.set(key, buffer, ttlSeconds)
   } catch (err) {
     Api.error(`[Redis] Failed to set media buffer for key ${key}:`, err)
   }
@@ -100,7 +105,7 @@ export async function invalidateResourceCache(path: string): Promise<void> {
       const [newCursor, keys] = await redis.scan(cursor, 'MATCH', `api:cache:*:${basePath}*`, 'COUNT', 100)
       cursor = newCursor
       if (keys.length > 0) {
-        await redis.del(...keys)
+        await cacheAdapter.del(...keys)
         count += keys.length
       }
     } while (cursor !== '0')

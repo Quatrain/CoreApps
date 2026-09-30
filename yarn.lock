@@ -386,13 +386,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^7.6.0":
-  version: 7.6.0
-  resolution: "@faker-js/faker@npm:7.6.0"
-  checksum: 10c0/8f0e0588b1327563aba3bf71d859eb52575c6e34f9d259f63dfa3c3ba7eea910588395399f2531753f1b7b730c06e0ef79336634361b2e69445ed69123e019eb
-  languageName: node
-  linkType: hard
-
 "@floating-ui/core@npm:^1.7.5":
   version: 1.7.5
   resolution: "@floating-ui/core@npm:1.7.5"
@@ -871,8 +864,8 @@ __metadata:
   resolution: "@quatrain/ai-gemini@portal:../Core/packages/ai-gemini::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@google/genai": "npm:latest"
-    "@quatrain/ai": "npm:^1.1.3"
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/ai": "workspace:*"
+    "@quatrain/core": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -880,7 +873,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/ai@portal:../Core/packages/ai::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/core": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -899,8 +892,10 @@ __metadata:
   resolution: "@quatrain/api-gateway@workspace:containers/api-gateway"
   dependencies:
     "@quatrain/api": "npm:*"
+    "@quatrain/cache": "npm:*"
+    "@quatrain/cache-redis": "npm:*"
     "@types/bun": "npm:latest"
-    ioredis: "npm:^5.3.0"
+    "@types/node": "npm:^20.11.0"
   languageName: unknown
   linkType: soft
 
@@ -963,8 +958,8 @@ __metadata:
   resolution: "@quatrain/auth-http-basic@portal:../Core/packages/auth-http-basic::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/api": "workspace:*"
-    "@quatrain/auth": "npm:^1.2.3"
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/auth": "workspace:*"
+    "@quatrain/core": "workspace:*"
     "@quatrain/http": "workspace:*"
   languageName: node
   linkType: soft
@@ -982,8 +977,8 @@ __metadata:
   resolution: "@quatrain/auth@portal:../Core/packages/auth::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
     "@quatrain/api": "workspace:*"
-    "@quatrain/backend": "npm:^1.2.13"
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/backend": "workspace:*"
+    "@quatrain/core": "workspace:*"
     "@quatrain/http": "workspace:*"
   languageName: node
   linkType: soft
@@ -1002,7 +997,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/backend-sqlite@portal:../Core/packages/backend-sqlite::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/backend": "npm:^1.2.13"
+    "@quatrain/backend": "workspace:*"
     "@quatrain/core": "workspace:*"
     sqlite: "npm:^5.1.1"
     sqlite3: "npm:^5.1.7"
@@ -1013,10 +1008,33 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/backend@portal:../Core/packages/backend::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@faker-js/faker": "npm:^7.6.0"
     "@quatrain/core": "workspace:*"
     "@quatrain/log": "workspace:*"
     "@quatrain/types": "workspace:*"
+  languageName: node
+  linkType: soft
+
+"@quatrain/cache-redis@portal:../Core/packages/cache-redis::locator=core-apps-monorepo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/cache-redis@portal:../Core/packages/cache-redis::locator=core-apps-monorepo%40workspace%3A."
+  dependencies:
+    "@quatrain/backend": "workspace:*"
+    "@quatrain/cache": "workspace:*"
+    "@quatrain/core": "workspace:*"
+    "@quatrain/log": "workspace:*"
+    "@quatrain/storage": "workspace:*"
+    ioredis: "npm:^5.3.0"
+  languageName: node
+  linkType: soft
+
+"@quatrain/cache@portal:../Core/packages/cache::locator=core-apps-monorepo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@quatrain/cache@portal:../Core/packages/cache::locator=core-apps-monorepo%40workspace%3A."
+  dependencies:
+    "@quatrain/backend": "workspace:*"
+    "@quatrain/core": "workspace:*"
+    "@quatrain/log": "workspace:*"
+    "@quatrain/storage": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -1024,7 +1042,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/code@portal:../Core/packages/code::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/core": "workspace:*"
   languageName: node
   linkType: soft
 
@@ -1080,7 +1098,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/messaging@portal:../Core/packages/messaging::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/core": "workspace:*"
     mustache: "npm:^4.2.0"
   languageName: node
   linkType: soft
@@ -1089,7 +1107,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/queue@portal:../Core/packages/queue::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/core": "workspace:*"
     fs-extra: "npm:^11.2.0"
   languageName: node
   linkType: soft
@@ -1107,7 +1125,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@quatrain/storage@portal:../Core/packages/storage::locator=core-apps-monorepo%40workspace%3A."
   dependencies:
-    "@quatrain/core": "npm:^1.2.16"
+    "@quatrain/core": "workspace:*"
     fs-extra: "npm:^11.2.0"
     object-hash: "npm:^3.0.0"
     sharp: "npm:^0.33.5"
@@ -1695,6 +1713,15 @@ __metadata:
   dependencies:
     undici-types: "npm:>=7.24.0 <7.24.7"
   checksum: 10c0/9a04682842bebbcf21a1779dfeab9aa733d7bd7bbc0a0edb641ab3a9a3d43eac543225acf669c334f458f1956443ebc072bc3c72840c543b8b356cab5c82d456
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.11.0":
+  version: 20.19.43
+  resolution: "@types/node@npm:20.19.43"
+  dependencies:
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/9bcec3b5295bdd77ff0b44a528a69f7e22028c347507ba2c69be47ec84e30299f45043b222e9c86c510e138c9c53b2419dd5cd34920602a4a5a381c288075318
   languageName: node
   linkType: hard
 
