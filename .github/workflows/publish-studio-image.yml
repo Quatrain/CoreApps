@@ -16,6 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  SOVEREIGN_REGISTRY: git.qtrn.io
   IMAGE_NAME: ${{ github.repository_owner }}/studio-image
 
 jobs:
@@ -53,11 +54,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to Sovereign Container registry (git.qtrn.io)
+        if: ${{ secrets.QTRN_REGISTRY_USER != '' && secrets.QTRN_REGISTRY_TOKEN != '' }}
+        uses: docker/login-action@v3 # NOSONAR
+        with:
+          registry: ${{ env.SOVEREIGN_REGISTRY }}
+          username: ${{ secrets.QTRN_REGISTRY_USER }}
+          password: ${{ secrets.QTRN_REGISTRY_TOKEN }}
+
+      - name: Determine target container registries
+        id: registries
+        run: |
+          {
+            echo "images<<EOF"
+            echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+            if [ -n "${{ secrets.QTRN_REGISTRY_USER }}" ] && [ -n "${{ secrets.QTRN_REGISTRY_TOKEN }}" ]; then
+              echo "${{ env.SOVEREIGN_REGISTRY }}/${{ env.IMAGE_NAME }}"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5 # NOSONAR
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ steps.registries.outputs.images }}
           tags: |
             type=sha
             type=ref,event=branch
@@ -77,9 +98,8 @@ jobs:
           
       - name: Sync with remote to avoid push conflicts
         run: |
-          git restore containers/studio-image/package.json
           git config pull.rebase true
-          git pull origin main
+          git pull origin main --autostash
 
       - name: Bump package version and push tag
         uses: Quatrain/actions/push-tag@v1

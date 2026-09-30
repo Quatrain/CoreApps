@@ -14,11 +14,11 @@
     "dev": "./bin/dev.sh"
   },
   "dependencies": {
-    "@quatrain/api": "*",
-    "@quatrain/storage": "*",
-    "@quatrain/storage-local": "*",
-    "@quatrain/studio": "*",
-    "@quatrain/studio-api": "*",
-    "@quatrain/studio-web": "*"
+    "@quatrain/api": "1.1.8",
+    "@quatrain/storage": "1.2.15",
+    "@quatrain/storage-local": "1.1.7",
+    "@quatrain/studio": "1.1.9",
+    "@quatrain/studio-api": "1.1.4",
+    "@quatrain/studio-web": "1.1.4"
   }
 }
