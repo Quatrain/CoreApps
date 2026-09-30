@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@quatrain/api": "*",
-    "ioredis": "^5.3.0"
+    "@quatrain/cache": "*",
+    "@quatrain/cache-redis": "*"
   },
   "devDependencies": {
     "@types/bun": "latest",
