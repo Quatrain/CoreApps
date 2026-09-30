@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths:
       - 'containers/api-gateway/**'
 
@@ -49,20 +50,26 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Sovereign Container registry (git.qtrn.io)
-        if: ${{ secrets.QTRN_REGISTRY_USER != '' && secrets.QTRN_REGISTRY_TOKEN != '' }}
+        if: env.QTRN_REGISTRY_USER != '' && env.QTRN_REGISTRY_TOKEN != ''
+        env:
+          QTRN_REGISTRY_USER: ${{ secrets.QTRN_REGISTRY_USER }}
+          QTRN_REGISTRY_TOKEN: ${{ secrets.QTRN_REGISTRY_TOKEN }}
         uses: docker/login-action@v3 # NOSONAR
         with:
           registry: ${{ env.SOVEREIGN_REGISTRY }}
-          username: ${{ secrets.QTRN_REGISTRY_USER }}
-          password: ${{ secrets.QTRN_REGISTRY_TOKEN }}
+          username: ${{ env.QTRN_REGISTRY_USER }}
+          password: ${{ env.QTRN_REGISTRY_TOKEN }}
 
       - name: Determine target container registries
         id: registries
+        env:
+          QTRN_REGISTRY_USER: ${{ secrets.QTRN_REGISTRY_USER }}
+          QTRN_REGISTRY_TOKEN: ${{ secrets.QTRN_REGISTRY_TOKEN }}
         run: |
           {
             echo "images<<EOF"
             echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-            if [ -n "${{ secrets.QTRN_REGISTRY_USER }}" ] && [ -n "${{ secrets.QTRN_REGISTRY_TOKEN }}" ]; then
+            if [ -n "$QTRN_REGISTRY_USER" ] && [ -n "$QTRN_REGISTRY_TOKEN" ]; then
               echo "${{ env.SOVEREIGN_REGISTRY }}/${{ env.IMAGE_NAME }}"
             fi
             echo "EOF"
@@ -87,7 +94,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
       - name: Bump package version and push tag
+        if: github.ref == 'refs/heads/main'
         uses: Quatrain/actions/push-tag@v1
         with:
           bump_type: 'patch'
