@@ -166,6 +166,7 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     const cachedBuffer = await getMediaBuffer(cacheKey)
     if (cachedBuffer) {
       Api.info(`[MediaProxy] Cache HIT for ${cacheKey}`)
+      responseHeaders.set('Content-Length', String(cachedBuffer.length))
       return new Response(cachedBuffer, { headers: responseHeaders })
     }
   }
@@ -222,13 +223,22 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     
     // Save to Redis asynchronously
     setMediaBuffer(cacheKey, buffer, GATEWAY_CACHE_MAX_AGE)
+    responseHeaders.set('Content-Length', String(buffer.length))
     
-    return new Response(buffer, { headers: responseHeaders })
+    return new Response(buffer, { status: storageRes.status, headers: responseHeaders })
   }
 
-  // 3. Direct Streaming (Zero-Copy-ish)
-  // Bun optimizes streaming Responses heavily.
-  return new Response(storageRes.body, {
+  // 3. Response Delivery
+  // In Bun.serve, returning a ReadableStream (storageRes.body) forces Transfer-Encoding: chunked
+  // and strips the Content-Length header, which breaks binary clients (e.g. Unity BestHTTP)
+  // that rely on Content-Length to track download progress and allocate memory.
+  // Buffering into a Blob preserves exact Content-Length without chunked transfer encoding.
+  const blob = await storageRes.blob()
+  if (!responseHeaders.has('Content-Length') && blob.size > 0) {
+    responseHeaders.set('Content-Length', String(blob.size))
+  }
+
+  return new Response(blob, {
     status: storageRes.status,
     headers: responseHeaders
   })
