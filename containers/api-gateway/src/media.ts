@@ -122,20 +122,24 @@ export async function handleMediaRequest(req: Request, url: URL): Promise<Respon
     }
   }
 
-  // 1.5. Check Excluded Mimes and Size
+  // 1.5. Size-driven Strategy: Redirection (S3 direct) vs Direct Forward (Streaming Proxy)
   const sizeMB = (size / (1024 * 1024)).toFixed(2)
-  const isVideo = mimeType.startsWith('video/')
-  
-  if (mimeType !== 'application/pdf' && !isVideo && GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
-    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Excluded MIME (${mimeType}) | Size: ${sizeMB} MB`)
+  const isRedirectAllowed = url.searchParams.get('redirect') !== 'false'
+
+  // If size exceeds GATEWAY_MAXSIZE, redirect client directly to upstream signed storage URL.
+  // This bypasses intermediate gateway buffering and proxying, eliminating TCP FIN / timeout
+  // interruptions on large media files and leveraging full client/CDN bandwidth.
+  if (isRedirectAllowed && GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
+    const maxSizeMB = (GATEWAY_MAXSIZE / (1024 * 1024)).toFixed(2)
+    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Size exceeds GATEWAY_MAXSIZE (${sizeMB} MB > ${maxSizeMB} MB) | MIME: ${mimeType}`)
     const redirectHeaders = new Headers(responseHeaders)
     redirectHeaders.set('Location', storageUrl)
     return new Response(null, { status: 302, headers: redirectHeaders })
   }
-  
-  if (!isVideo && GATEWAY_MAXSIZE !== null && size > GATEWAY_MAXSIZE) {
-    const maxSizeMB = (GATEWAY_MAXSIZE / (1024 * 1024)).toFixed(2)
-    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Size exceeds GATEWAY_MAXSIZE (${sizeMB} MB > ${maxSizeMB} MB)`)
+
+  // Explicitly excluded MIME types (e.g. zip archives) always redirect regardless of size
+  if (isRedirectAllowed && mimeType !== 'application/pdf' && GATEWAY_EXCLUDED_MIMES.includes(mimeType)) {
+    Api.info(`[MediaProxy] Strategy: REDIRECTION | Reason: Excluded MIME (${mimeType}) | Size: ${sizeMB} MB`)
     const redirectHeaders = new Headers(responseHeaders)
     redirectHeaders.set('Location', storageUrl)
     return new Response(null, { status: 302, headers: redirectHeaders })
