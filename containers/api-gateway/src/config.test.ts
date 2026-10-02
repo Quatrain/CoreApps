@@ -16,4 +16,14 @@ describe('API Gateway Configuration (config.ts)', () => {
     expect(parseIdleTimeout(undefined, '60')).toBe(60)
     expect(parseIdleTimeout('45', '60')).toBe(45)
   })
+
+  it('should parse GATEWAY_MAXSIZE correctly with default 10MB', () => {
+    const parseMaxSize = (val?: string): number => {
+      return val ? Number.parseInt(val, 10) : 10485760
+    }
+
+    expect(parseMaxSize(undefined)).toBe(10485760)
+    expect(parseMaxSize('524288000')).toBe(524288000)
+    expect(parseMaxSize('20971520')).toBe(20971520)
+  })
 })

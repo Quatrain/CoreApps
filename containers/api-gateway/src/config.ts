@@ -10,7 +10,9 @@ if (!API_UPSTREAM_URL) {
 
 export const MAX_CACHE_SIZE_MB = Number.parseInt(process.env.MAX_CACHE_SIZE_MB || '5', 10)
 export const GATEWAY_MAX_CACHE_BODY_BYTES = Number.parseInt(process.env.GATEWAY_MAX_CACHE_BODY_BYTES || '1048576', 10) // 1 MB default
-export const GATEWAY_MAXSIZE = process.env.GATEWAY_MAXSIZE ? Number.parseInt(process.env.GATEWAY_MAXSIZE, 10) : null
+export const GATEWAY_MAXSIZE = process.env.GATEWAY_MAXSIZE 
+  ? Number.parseInt(process.env.GATEWAY_MAXSIZE, 10) 
+  : 10485760 // 10 MB default threshold: files above this size redirect directly to storage
 export const GATEWAY_EXCLUDED_MIMES = process.env.GATEWAY_EXCLUDED_MIMES 
   ? process.env.GATEWAY_EXCLUDED_MIMES.split(',').map(m => m.trim())
   : (process.env.NODE_ENV === 'test' ? ['application/zip', 'application/x-zip-compressed'] : [])
@@ -29,4 +31,5 @@ export const GATEWAY_IDLE_TIMEOUT = envIdleTimeout !== undefined
   ? (Number.isNaN(Number.parseInt(envIdleTimeout, 10)) ? 0 : Number.parseInt(envIdleTimeout, 10))
   : 0
 export const IDLE_TIMEOUT = GATEWAY_IDLE_TIMEOUT
+
 
