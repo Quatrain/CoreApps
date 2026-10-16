@@ -1,0 +1,40 @@
+name: Quatrain CoreApps Sovereign CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  DOCKER_HOST: tcp://127.0.0.1:2375
+
+jobs:
+  test-and-build:
+    name: Build Containers & Validate Monorepo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Docker Daemon
+        run: |
+          docker version
+          docker info
+
+      - name: Build API Gateway Container Image
+        run: |
+          echo "=== Building API Gateway Container ==="
+          docker build -t qtrn.io/quatrain/api-gateway:test -f containers/api-gateway/ContainerFile containers/api-gateway
+
+      - name: Build Studio Image Container
+        run: |
+          echo "=== Building Studio Image Container ==="
+          docker build -t qtrn.io/quatrain/studio-image:test -f containers/studio-image/ContainerFile containers/studio-image
