@@ -24,10 +24,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify Docker Daemon
+      - name: Install Docker CLI
         run: |
+          apt-get update -qq && apt-get install -y -qq docker.io
           docker version
-          docker info
 
       - name: Build API Gateway Container Image
         run: |
