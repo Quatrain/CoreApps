@@ -39,7 +39,30 @@ jobs:
           echo "=== Building Studio Image Container ==="
           docker build -t qtrn.io/quatrain/studio-image:test -f containers/studio-image/ContainerFile containers/studio-image
 
-      - name: Build DB Migrator Container
+      - name: Log in to Sovereign Container Registry
         run: |
-          echo "=== Building DB Migrator Container ==="
-          docker build -t qtrn.io/quatrain/db-migrator:test -f containers/db-migrator/ContainerFile containers/db-migrator
+          echo "=== Authenticating with qtrn.io ==="
+          REG_USER="${{ secrets.REGISTRY_USER }}"
+          REG_PASS="${{ secrets.REGISTRY_TOKEN }}"
+          if [ -z "$REG_USER" ]; then
+            REG_USER="${{ github.actor }}"
+          fi
+          if [ -z "$REG_PASS" ]; then
+            REG_PASS="${{ secrets.GITHUB_TOKEN }}"
+          fi
+          echo "$REG_PASS" | docker login qtrn.io -u "$REG_USER" --password-stdin
+
+      - name: Build & Publish DB Migrator Container
+        run: |
+          echo "=== Building & Publishing DB Migrator Container ==="
+          SAFE_REF=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          docker build \
+            --file containers/db-migrator/ContainerFile \
+            --tag "qtrn.io/quatrain/db-migrator:latest" \
+            --tag "qtrn.io/quatrain/db-migrator:${{ github.sha }}" \
+            --tag "qtrn.io/quatrain/db-migrator:${SAFE_REF}" \
+            containers/db-migrator
+          docker push "qtrn.io/quatrain/db-migrator:latest"
+          docker push "qtrn.io/quatrain/db-migrator:${{ github.sha }}"
+          docker push "qtrn.io/quatrain/db-migrator:${SAFE_REF}"
+
