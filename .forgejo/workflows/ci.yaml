@@ -19,6 +19,9 @@ jobs:
   test-and-build:
     name: Build Containers & Validate Monorepo
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Code
