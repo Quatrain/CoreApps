@@ -1,0 +1,38 @@
+FROM oven/bun:alpine AS builder
+
+WORKDIR /app
+COPY package.json ./
+RUN bun install
+
+COPY src ./src
+COPY tsconfig.json ./
+
+# Build the standalone bun binary/bundle
+RUN bun build src/index.ts --outdir dist --target bun
+RUN date > dist/build_date.txt
+
+FROM oven/bun:alpine
+WORKDIR /app
+
+LABEL org.opencontainers.image.title="Quatrain DB Migrator"
+LABEL org.opencontainers.image.description="Agnostic, idempotent database migration runner for PostgreSQL and modern SQL engines"
+LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
+LABEL org.opencontainers.image.vendor="Quatrain Technologies"
+LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"
+
+COPY --from=builder --chown=bun:bun /app/dist ./dist
+COPY --from=builder --chown=bun:bun /app/node_modules ./node_modules
+COPY --chown=bun:bun package.json ./
+
+# Create default migrations volume directory
+RUN mkdir -p /app/migrations && chown -R bun:bun /app/migrations
+
+USER bun
+
+ENV MIGRATIONS_DIR=/app/migrations
+ENV DB_DIALECT=postgres
+
+VOLUME ["/app/migrations"]
+
+CMD ["bun", "run", "dist/index.js"]

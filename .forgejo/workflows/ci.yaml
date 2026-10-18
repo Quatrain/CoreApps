@@ -38,3 +38,8 @@ jobs:
         run: |
           echo "=== Building Studio Image Container ==="
           docker build -t qtrn.io/quatrain/studio-image:test -f containers/studio-image/ContainerFile containers/studio-image
+
+      - name: Build DB Migrator Container
+        run: |
+          echo "=== Building DB Migrator Container ==="
+          docker build -t qtrn.io/quatrain/db-migrator:test -f containers/db-migrator/ContainerFile containers/db-migrator

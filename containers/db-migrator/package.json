@@ -1,0 +1,25 @@
+{
+  "name": "@quatrain/db-migrator",
+  "version": "1.0.0",
+  "description": "Agnostic, idempotent database migration runner for PostgreSQL and modern SQL engines",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "test": "bun test",
+    "build": "bun build src/index.ts --outdir dist --target bun"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quatrain/CoreApps.git",
+    "directory": "containers/db-migrator"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.10.1",
+    "@types/pg": "^8.11.10"
+  }
+}
