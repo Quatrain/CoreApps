@@ -26,11 +26,14 @@ ensure_buildx() {
   if docker buildx version >/dev/null 2>&1; then
     return 0
   fi
-  . /etc/os-release
+  # Read os-release in a subshell: sourcing it here would overwrite NAME, VERSION and ID.
+  local distro codename
+  distro="$(. /etc/os-release && echo "${ID}")"
+  codename="$(. /etc/os-release && echo "${VERSION_CODENAME}")"
   install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL "https://download.docker.com/linux/${ID}/gpg" -o /etc/apt/keyrings/docker.asc
+  curl -fsSL "https://download.docker.com/linux/${distro}/gpg" -o /etc/apt/keyrings/docker.asc
   chmod a+r /etc/apt/keyrings/docker.asc
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" \
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${distro} ${codename} stable" \
     > /etc/apt/sources.list.d/docker.list
   apt-get update -qq
   apt-get install -y -qq docker-ce-cli docker-buildx-plugin

@@ -39,4 +39,7 @@ jobs:
         env:
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+          # arm64 only: bun crashes under QEMU x86_64 emulation while installing the native
+          # sqlite3 module, so the amd64 variant cannot be built on the arm64 runners.
+          PLATFORMS: linux/arm64
         run: bin/publish_container.sh studio-image
