@@ -74,9 +74,10 @@ case "${BRANCH}" in
     ;;
 esac
 
-echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
 
+# The Docker CLI is installed here: it must precede any other docker command.
 ensure_buildx
+echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
 docker run --privileged --rm "${BINFMT_IMAGE}" --install arm64
 docker buildx create --name "publish-${NAME}" --driver docker-container --use >/dev/null
 
