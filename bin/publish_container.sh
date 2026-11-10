@@ -9,28 +9,31 @@
 #            and creates the git tag <name>-v<version>.
 #
 # Images are multi-arch (PLATFORMS, default linux/amd64,linux/arm64): the runner is amd64,
-# so arm64 layers are built under QEMU emulation through docker buildx.
+# so arm64 layers are built under QEMU emulation through docker buildx (installed on demand).
 #
 # Environment: REGISTRY (default qtrn.io), REGISTRY_USER, REGISTRY_TOKEN, GITHUB_REF_NAME, GITHUB_SHA,
 #              PLATFORMS.
 set -euo pipefail
 
-BUILDX_VERSION="v0.38.1"
 BINFMT_IMAGE="tonistiigi/binfmt:qemu-v10.2.3-68"
 PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
 
-# Installs the pinned buildx CLI plugin (checksum verified) unless one is already available.
+# Installs the Docker CLI with the buildx plugin from Docker's official apt repository
+# (signed by Docker's key). Debian's docker.io client does not pick up a standalone
+# buildx plugin, so it is not used here.
 ensure_buildx() {
   if docker buildx version >/dev/null 2>&1; then
     return 0
   fi
-  local plugins="${HOME}/.docker/cli-plugins"
-  local asset="buildx-${BUILDX_VERSION}.linux-amd64"
-  local base="https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}"
-  mkdir -p "${plugins}"
-  curl -fsSL -o "${plugins}/docker-buildx" "${base}/${asset}"
-  curl -fsSL "${base}/checksums.txt" | grep " \*\?${asset}\$" | awk '{ print $1 "  " p }' p="${plugins}/docker-buildx" | sha256sum -c -
-  chmod +x "${plugins}/docker-buildx"
+  . /etc/os-release
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL "https://download.docker.com/linux/${ID}/gpg" -o /etc/apt/keyrings/docker.asc
+  chmod a+r /etc/apt/keyrings/docker.asc
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" \
+    > /etc/apt/sources.list.d/docker.list
+  apt-get update -qq
+  apt-get install -y -qq docker-ce-cli docker-buildx-plugin
+  docker version
   docker buildx version
 }
 

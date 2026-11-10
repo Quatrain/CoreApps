@@ -30,8 +30,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Docker CLI and jq
-        run: apt-get update -qq && apt-get install -y -qq docker.io jq
+      - name: Install jq
+        run: apt-get update -qq && apt-get install -y -qq jq
 
       - name: Build, push and tag release
         env:
