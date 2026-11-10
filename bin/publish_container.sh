@@ -8,8 +8,9 @@
 #            :<version>, :latest and :sha-<short>, commits the bump with [skip ci]
 #            and creates the git tag <name>-v<version>.
 #
-# Images are multi-arch (PLATFORMS, default linux/amd64,linux/arm64): the runner is amd64,
-# so arm64 layers are built under QEMU emulation through docker buildx (installed on demand).
+# Images are multi-arch (PLATFORMS, default linux/amd64,linux/arm64). Layers for the runner's
+# own architecture build natively; the others build under QEMU emulation through docker buildx
+# (installed on demand). The qtrn.io runners are arm64, so amd64 is the emulated one.
 #
 # Environment: REGISTRY (default qtrn.io), REGISTRY_USER, REGISTRY_TOKEN, GITHUB_REF_NAME, GITHUB_SHA,
 #              PLATFORMS.
@@ -78,7 +79,13 @@ esac
 # The Docker CLI is installed here: it must precede any other docker command.
 ensure_buildx
 echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
-docker run --privileged --rm "${BINFMT_IMAGE}" --install arm64
+# Register QEMU only for the target platforms that differ from the daemon's architecture.
+NATIVE_ARCH="$(docker version --format '{{.Server.Arch}}')"
+FOREIGN_ARCHS="$(tr ',' '\n' <<<"${PLATFORMS}" | awk -F/ -v native="${NATIVE_ARCH}" '$2 != native { print $2 }' | paste -sd, -)"
+echo "Native architecture: ${NATIVE_ARCH}; emulated: ${FOREIGN_ARCHS:-none}"
+if [ -n "${FOREIGN_ARCHS}" ]; then
+  docker run --privileged --rm "${BINFMT_IMAGE}" --install "${FOREIGN_ARCHS}"
+fi
 docker buildx create --name "publish-${NAME}" --driver docker-container --use >/dev/null
 
 BUILD_ARGS=()
