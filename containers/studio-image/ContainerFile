@@ -18,7 +18,7 @@ WORKDIR /app
 # OCI standard labels
 LABEL org.opencontainers.image.title="Core Studio"
 LABEL org.opencontainers.image.description="Bundled developer environment for visual data modeling and dashboard generation in the Core ecosystem"
-LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
+LABEL org.opencontainers.image.source="https://git.qtrn.io/quatrain/core-apps"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 LABEL org.opencontainers.image.vendor="Quatrain Technologies"
 LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"

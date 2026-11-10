@@ -60,7 +60,7 @@ WORKDIR /app
 # OCI standard labels
 LABEL org.opencontainers.image.title="Core Service Name"
 LABEL org.opencontainers.image.description="Short, concise summary of this container's responsibility"
-LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
+LABEL org.opencontainers.image.source="https://git.qtrn.io/quatrain/core-apps"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 LABEL org.opencontainers.image.vendor="Quatrain Technologies"
 LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"
@@ -72,7 +72,7 @@ LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain
 |--------------------|--------------------------|---------|
 | `org.opencontainers.image.title` | The human-readable name of the application. | `"Core API Gateway"` |
 | `org.opencontainers.image.description` | One-sentence summary of the container's purpose. | `"API Gateway and Cache Proxy"` |
-| `org.opencontainers.image.source` | URL to the repository containing the build files. | `"https://github.com/Quatrain/CoreApps"` |
+| `org.opencontainers.image.source` | URL to the repository containing the build files. | `"https://git.qtrn.io/quatrain/core-apps"` |
 | `org.opencontainers.image.licenses` | Standard SPID identifier for the license. | `"AGPL-3.0"` |
 | `org.opencontainers.image.vendor` | The copyright holder / publisher organization. | `"Quatrain Technologies"` |
 | `org.opencontainers.image.authors` | Contact details of the maintainers/developers. | `"developers@quatrain.com"` |
@@ -83,3 +83,11 @@ LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain
 
 - **Clean Imports (Post-Refactoring)**: Always double-check and remove unused imports after refactoring files to prevent bundle bloating and maintain namespace hygiene.
 - **Fail-Fast Environment Validation**: Since containerized deployments run in distinct production/staging platforms, all infrastructure environment variables (e.g. `PORT`, `REDIS_URL`) must be validated immediately at start-up. Throw an explicit error and fail-fast if critical configuration variables are missing.
+
+---
+
+## 🔄 GitFlow & Source of Authority
+
+- **Source of Authority**: `git.qtrn.io/quatrain/core-apps` (git remote `sovereign`). `github.com/Quatrain/CoreApps` is a read-only push mirror refreshed on every push: never push, open issues or open pull requests there. The `gh` CLI does not apply; use the Forgejo API with a personal access token (`write:issue`, `write:repository`).
+- **Branching**: Branch out from `develop`: `feat/<issue-id>-<description>` or `fix/...`; open pull requests on Forgejo targeting `develop` with `Closes #<issue-id>`.
+- **Container Images**: Published to `qtrn.io/quatrain/<container>` by `.forgejo/workflows/publish-*.yaml` through `bin/publish_container.sh`. Never reference `ghcr.io` images.

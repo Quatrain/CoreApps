@@ -29,7 +29,7 @@ Here is a typical `compose.yaml` configuration:
 services:
   api-gateway:
     container_name: api-gateway
-    image: ghcr.io/quatrain/api-gateway:latest
+    image: qtrn.io/quatrain/api-gateway:latest
     restart: always
     environment:
       - PORT=3000

@@ -1,5 +1,8 @@
 # Core Applications & Deployments (CoreApps)
 
+> [!IMPORTANT]
+> The source of authority is **[git.qtrn.io/quatrain/core-apps](https://git.qtrn.io/quatrain/core-apps)**: issues, pull requests, wiki and CI live there. `github.com/Quatrain/CoreApps` is a read-only mirror.
+
 This monorepo houses all visual dashboard environments, local modeling APIs, API routing proxies, and containerized deployments built on top of the Core framework (by Quatrain).
 
 ---
@@ -19,6 +22,7 @@ CoreApps/
 ├── examples/
 │   └── bookstore/       # Bookstore reference sandbox application
 └── bin/
+    ├── publish_container.sh # Container build & push to qtrn.io (Forgejo Actions)
     └── push_tag.sh      # Automated release tagging script
 ```
 
@@ -58,11 +62,12 @@ yarn build
 
 ## 🚀 Versioning & Deployment
 
-Deployments and releases are automated via GitHub Actions:
+Deployments and releases are automated via Forgejo Actions on [git.qtrn.io](https://git.qtrn.io/quatrain/core-apps); images are published to the sovereign registry `qtrn.io/quatrain/*`:
 
 * **Release Tagging**: Run the `bin/push_tag.sh` script to bump the monorepo version patch, create a Git tag, and push it to the remote.
-* **API Gateway Image**: Automated via `.github/workflows/publish-api-gateway.yml` using the composite `Quatrain/actions/prepare-package-json` action to bundle stable, registry-resolved dependencies.
-* **Studio Environment Image**: Automated via `.github/workflows/publish-studio-image.yml`.
+* **API Gateway Image**: `.forgejo/workflows/publish-api-gateway.yaml` runs `bin/publish_container.sh api-gateway`.
+* **Studio Environment Image**: `.forgejo/workflows/publish-studio-image.yaml` runs `bin/publish_container.sh studio-image`.
+* Pushes to `develop` publish `:develop` and `:sha-<commit>`; pushes to `main` bump the patch version, publish `:<version>` and `:latest`, and tag `<container>-v<version>`. Secrets `REGISTRY_USER` and `REGISTRY_TOKEN` are required.
 
 ---
 

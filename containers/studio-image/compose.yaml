@@ -1,6 +1,6 @@
 services:
   studio:
-    image: ghcr.io/quatrain/studio-image:latest
+    image: qtrn.io/quatrain/studio-image:latest
     ports:
       - "4000:4000"
     volumes:

@@ -16,7 +16,7 @@ WORKDIR /app
 
 LABEL org.opencontainers.image.title="Core API Gateway"
 LABEL org.opencontainers.image.description="API Gateway and Cache Proxy for the Core ecosystem"
-LABEL org.opencontainers.image.source="https://github.com/Quatrain/CoreApps"
+LABEL org.opencontainers.image.source="https://git.qtrn.io/quatrain/core-apps"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 LABEL org.opencontainers.image.vendor="Quatrain Technologies"
 LABEL org.opencontainers.image.authors="Quatrain Developers <developers@quatrain.com>"

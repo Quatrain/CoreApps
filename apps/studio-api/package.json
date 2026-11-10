@@ -4,7 +4,7 @@
   "description": "Local API server for Quatrain Studio",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Quatrain/Core.git",
+    "url": "git+https://git.qtrn.io/quatrain/core-apps.git",
     "directory": "apps/studio-api"
   },
   "main": "dist/index.js",
