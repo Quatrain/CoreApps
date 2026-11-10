@@ -8,16 +8,16 @@
 #            :<version>, :latest and :sha-<short>, commits the bump with [skip ci]
 #            and creates the git tag <name>-v<version>.
 #
-# Images are multi-arch (PLATFORMS, default linux/amd64,linux/arm64). Layers for the runner's
-# own architecture build natively; the others build under QEMU emulation through docker buildx
-# (installed on demand). The qtrn.io runners are arm64, so amd64 is the emulated one.
+# Images target linux/arm64 only by default, the architecture of the qtrn.io nodes and runners.
+# PLATFORMS accepts a comma-separated list: platforms foreign to the runner then build under QEMU
+# emulation through docker buildx (installed on demand).
 #
 # Environment: REGISTRY (default qtrn.io), REGISTRY_USER, REGISTRY_TOKEN, GITHUB_REF_NAME, GITHUB_SHA,
 #              PLATFORMS.
 set -euo pipefail
 
 BINFMT_IMAGE="tonistiigi/binfmt:qemu-v10.2.3-68"
-PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
+PLATFORMS="${PLATFORMS:-linux/arm64}"
 
 # Installs the Docker CLI with the buildx plugin from Docker's official apt repository
 # (signed by Docker's key). Debian's docker.io client does not pick up a standalone
