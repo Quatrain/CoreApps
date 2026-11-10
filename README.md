@@ -68,6 +68,7 @@ Deployments and releases are automated via Forgejo Actions on [git.qtrn.io](http
 * **API Gateway Image**: `.forgejo/workflows/publish-api-gateway.yaml` runs `bin/publish_container.sh api-gateway`.
 * **Studio Environment Image**: `.forgejo/workflows/publish-studio-image.yaml` runs `bin/publish_container.sh studio-image`.
 * Pushes to `develop` publish `:develop` and `:sha-<commit>`; pushes to `main` bump the patch version, publish `:<version>` and `:latest`, and tag `<container>-v<version>`. Secrets `REGISTRY_USER` and `REGISTRY_TOKEN` are required.
+* Images are multi-arch (`linux/amd64` and `linux/arm64`), built with `docker buildx` under QEMU emulation on the amd64 runners.
 
 ---
 

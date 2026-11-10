@@ -8,8 +8,31 @@
 #            :<version>, :latest and :sha-<short>, commits the bump with [skip ci]
 #            and creates the git tag <name>-v<version>.
 #
-# Environment: REGISTRY (default qtrn.io), REGISTRY_USER, REGISTRY_TOKEN, GITHUB_REF_NAME, GITHUB_SHA.
+# Images are multi-arch (PLATFORMS, default linux/amd64,linux/arm64): the runner is amd64,
+# so arm64 layers are built under QEMU emulation through docker buildx.
+#
+# Environment: REGISTRY (default qtrn.io), REGISTRY_USER, REGISTRY_TOKEN, GITHUB_REF_NAME, GITHUB_SHA,
+#              PLATFORMS.
 set -euo pipefail
+
+BUILDX_VERSION="v0.38.1"
+BINFMT_IMAGE="tonistiigi/binfmt:qemu-v10.2.3-68"
+PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
+
+# Installs the pinned buildx CLI plugin (checksum verified) unless one is already available.
+ensure_buildx() {
+  if docker buildx version >/dev/null 2>&1; then
+    return 0
+  fi
+  local plugins="${HOME}/.docker/cli-plugins"
+  local asset="buildx-${BUILDX_VERSION}.linux-amd64"
+  local base="https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}"
+  mkdir -p "${plugins}"
+  curl -fsSL -o "${plugins}/docker-buildx" "${base}/${asset}"
+  curl -fsSL "${base}/checksums.txt" | grep " \*\?${asset}\$" | awk '{ print $1 "  " p }' p="${plugins}/docker-buildx" | sha256sum -c -
+  chmod +x "${plugins}/docker-buildx"
+  docker buildx version
+}
 
 NAME="${1:?usage: publish_container.sh <container-name>}"
 DIR="containers/${NAME}"
@@ -50,10 +73,19 @@ esac
 
 echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
 
+ensure_buildx
+docker run --privileged --rm "${BINFMT_IMAGE}" --install arm64
+docker buildx create --name "publish-${NAME}" --driver docker-container --use >/dev/null
+
 BUILD_ARGS=()
 for t in "${TAGS[@]}"; do BUILD_ARGS+=(--tag "${IMAGE}:${t}"); done
-docker build --file "${DIR}/ContainerFile" "${BUILD_ARGS[@]}" "${DIR}"
-for t in "${TAGS[@]}"; do docker push "${IMAGE}:${t}"; done
+docker buildx build \
+  --platform "${PLATFORMS}" \
+  --file "${DIR}/ContainerFile" \
+  "${BUILD_ARGS[@]}" \
+  --push \
+  "${DIR}"
+docker buildx imagetools inspect "${IMAGE}:sha-${SHORT_SHA}"
 
 if [ "${BRANCH}" = "main" ]; then
   git add "${DIR}/package.json"
