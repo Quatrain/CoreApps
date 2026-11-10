@@ -1,0 +1,40 @@
+name: Publish API Gateway Container
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'containers/api-gateway/**'
+      - 'bin/publish_container.sh'
+      - '.forgejo/workflows/publish-api-gateway.yaml'
+  workflow_dispatch:
+
+env:
+  DOCKER_HOST: tcp://127.0.0.1:2375
+
+concurrency:
+  group: publish-api-gateway-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build & Push API Gateway to qtrn.io
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Docker CLI and jq
+        run: apt-get update -qq && apt-get install -y -qq docker.io jq
+
+      - name: Build, push and tag release
+        env:
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        run: bin/publish_container.sh api-gateway
