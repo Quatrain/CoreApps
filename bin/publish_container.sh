@@ -8,7 +8,8 @@
 #            :<version>, :latest and :sha-<short>, commits the bump with [skip ci]
 #            and creates the git tag <name>-v<version>.
 #
-# Images target linux/arm64 only by default, the architecture of the qtrn.io nodes and runners.
+# Images target linux/arm64 only by default, the architecture of the qtrn.io nodes and runners,
+# chosen because ARM64 is more resource-efficient (performance per watt, instance cost).
 # PLATFORMS accepts a comma-separated list: platforms foreign to the runner then build under QEMU
 # emulation through docker buildx (installed on demand).
 #

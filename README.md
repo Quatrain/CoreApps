@@ -68,7 +68,7 @@ Deployments and releases are automated via Forgejo Actions on [git.qtrn.io](http
 * **API Gateway Image**: `.forgejo/workflows/publish-api-gateway.yaml` runs `bin/publish_container.sh api-gateway`.
 * **Studio Environment Image**: `.forgejo/workflows/publish-studio-image.yaml` runs `bin/publish_container.sh studio-image`.
 * Pushes to `develop` publish `:develop` and `:sha-<commit>`; pushes to `main` bump the patch version, publish `:<version>` and `:latest`, and tag `<container>-v<version>`. Secrets `REGISTRY_USER` and `REGISTRY_TOKEN` are required.
-* Images are published for `linux/arm64` only, the architecture of the qtrn.io nodes and runners (no emulation). `PLATFORMS` can request other platforms, built under QEMU; `bun install` is known to crash under amd64 emulation.
+* Images are published for `linux/arm64` only: ARM64 is more resource-efficient (better performance per watt and lower instance cost), which is why the qtrn.io nodes and runners all run on it. Builds are therefore native, without emulation. `PLATFORMS` can request other platforms, built under QEMU; `bun install` is known to crash under amd64 emulation.
 
 ---
 
