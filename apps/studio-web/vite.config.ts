@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     fs: {
-      allow: ['../..', '../../packages']
+      allow: ['../..']
     },
     watch: {
       usePolling: true
