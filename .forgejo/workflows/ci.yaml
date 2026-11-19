@@ -24,6 +24,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Refuse client and business-domain words
+        run: node bin/check_forbidden_terms.js
+
       - name: Install Docker CLI
         run: |
           apt-get update -qq && apt-get install -y -qq docker.io
